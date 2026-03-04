@@ -1,0 +1,476 @@
+MVP SPEC — Animal Shelter Management Platform
+
+Tech Stack
+- Backend: Java 17, Spring Boot (Web, Validation, Spring Data JPA, Spring Security)
+- Auth: JWT + optional Google OAuth2 login
+- Database: MySQL 8
+- Frontend: Angular
+- Object Storage: S3
+
+Goal
+Build a full-stack platform to manage animals through intake → shelter placement → foster placement → adoption, with:
+- Public browsing of animals
+- Authenticated adopters can apply to adopt
+- Authenticated staff can intake/move animals and review/approve/deny applications
+- Audit/history of important animal events
+
+Roles & Permissions (MVP)
+- PUBLIC (not logged in)
+  - Browse/search animals, view animal details
+- ADOPTER (authenticated)
+  - Create/update own profile + questionnaire
+  - Submit adoption applications for animals
+  - View status of own applications
+- STAFF (authenticated; includes shelter employees)
+  - CRUD animals (intake, update, deactivate)
+  - Move animals (between shelter locations or to foster)
+  - Review adoption applications; approve/deny
+  - Complete adoption (finalize) and update animal status
+- FOSTER (optional as separate role for MVP; can be merged into ADOPTER or STAFF if needed)
+  - View foster assignments; update limited notes (optional)
+
+MVP Scope Boundaries
+IN SCOPE
+- Auth (local username/password) + password hashing
+- JWT-based session for frontend API calls
+- Optional: Google OAuth2 login (link to a user record)
+- Animal CRUD, basic photo support, search/filter
+- Adoption application submission + staff review workflow
+- Event/history tracking for animal lifecycle
+- Basic shelter location support (at least 1 location; multi-location supported if time)
+
+OUT OF SCOPE (for MVP)
+- Payment processing
+- Messaging/chat, email/SMS notifications
+- Scheduling/appointments
+- Complex medical record systems (beyond simple flags/notes)
+
+Core Data Model (MySQL Tables / Entities)
+1) users (first user will be created directly in database, other users can be added through API)
+- id (PK)
+- email (unique), username (unique)
+- password_hash (nullable if OAuth-only account)
+- display_name
+- phone (optional)
+- is_enabled (boolean)
+- created_at, updated_at
+
+2) roles
+- id (PK)
+- name (enum-like string): ADOPTER, STAFF, FOSTER
+
+3) user_roles (join)
+- user_id (FK users.id)
+- role_id (FK roles.id)
+- unique(user_id, role_id)
+
+4) adopter_profiles
+- user_id (PK/FK users.id)
+- address_line1, address_line2, city, state, zip
+- household_size (int)
+- housing_type (enum/string: HOUSE/APARTMENT/CONDO/OTHER)
+- has_yard (boolean)
+- has_kids (boolean)
+- has_other_pets (boolean)
+- needs_good_with_kids (boolean)
+- needs_good_with_other_pets (boolean)
+- willing_medically_complex (boolean)
+- notes (text)
+
+4b) adopter_questionnaires
+(stores latest questionnaire answers for each adopter)
+
+- id (PK)
+- user_id (FK users.id, unique)
+- schema_version (int)
+- household_size (int)
+- housing_type (enum/string: HOUSE/APARTMENT/CONDO/OTHER)
+- has_yard (boolean)
+- has_kids (boolean)
+- has_other_pets (boolean)
+- needs_good_with_kids (boolean)
+- needs_good_with_other_pets (boolean)
+- willing_medically_complex (boolean)
+- notes (text, nullable)
+- created_at
+- updated_at
+
+5) shelters (or locations)
+- id (PK)
+- name
+- address fields (optional)
+- capacity_total (optional)
+- created_at, updated_at
+
+6) animals
+- id (PK)
+- name
+- species (enum/string: DOG/CAT/OTHER)
+- breed (string, nullable)
+- sex (enum/string, nullable)
+- age_months (int, nullable)
+- good_with_kids (boolean)
+- good_with_other_pets (boolean)
+- medically_complex (boolean)
+- description (text)
+- status (enum/string):
+  - IN_SHELTER, IN_FOSTER, ADOPTION_PENDING, ADOPTED, TRANSFERRED, ON_HOLD, INACTIVE
+- current_shelter_id (FK shelters.id, nullable)
+- current_foster_user_id (FK users.id, nullable, FOSTER role only)
+- created_at, updated_at
+
+7) animal_photos (stored in S3 bucket ljs-animal-shelter-photos)
+- id (PK)
+- animal_id (FK animals.id)
+- s3_key (string, unique)         
+- url (string)                    
+- is_primary (boolean)
+- content_type (string, nullable)
+- file_size_bytes (bigint, nullable)
+- created_at
+
+8) animal_events
+(tracks history of lifecycle events)
+- id (PK)
+- animal_id (FK animals.id)
+- event_type (enum/string):
+  - INTAKE, SHELTER_MOVE, FOSTER_MOVE, STATUS_CHANGE, APPLICATION_SUBMITTED,
+    APPLICATION_APPROVED, APPLICATION_DENIED, ADOPTED, NOTE
+- from_shelter_id (FK shelters.id, nullable)
+- to_shelter_id (FK shelters.id, nullable)
+- from_foster_user_id (FK users.id, nullable)
+- to_foster_user_id (FK users.id, nullable)
+- performed_by_user_id (FK users.id, nullable)  // staff actor, or adopter for application submit
+- notes (text, nullable)
+- occurred_at (datetime)
+
+9) adoption_applications
+- id (PK)
+- animal_id (FK animals.id)
+- adopter_user_id (FK users.id)
+- status (enum/string): SUBMITTED, IN_REVIEW, APPROVED, DENIED, WITHDRAWN
+- questionnaire_snapshot_json (text/json)  // store answers at time of submission
+- staff_reviewer_user_id (FK users.id, nullable)
+- decision_notes (text, nullable)
+- created_at, updated_at
+
+10) adoptions
+(finalized adoption record)
+- id (PK)
+- animal_id (FK animals.id)
+- adopter_user_id (FK users.id)
+- application_id (FK adoption_applications.id)
+- adopted_at (datetime)
+- finalized_by_user_id (FK users.id)
+- notes (text, nullable)
+
+Goal:
+- Keep a minimal, consistent set of fields that match the core adopter_profile data.
+- Questionnaire answers are stored in adopter_questionnaires.
+- A subset of fields are synchronized into adopter_profiles for filtering and review.
+- Applications store a frozen snapshot of questionnaire answers at submission time (questionnaire_snapshot_json).
+- Questionnaire submission updates adopter_profile automatically.
+- Applications store a frozen copy of the questionnaire answers at submission time (questionnaire_snapshot_json).
+
+Questionnaire Fields (v1)
+
+Contact / Household
+- householdSize (int)
+- phone (string)
+- city (string)
+- state (string)
+- zip (string)
+
+Home Environment
+- housingType (enum: HOUSE, APARTMENT, CONDO, OTHER)
+- hasYard (boolean)
+- hasKids (boolean)
+- hasOtherPets (boolean)
+
+Pet Fit / Constraints (aligns with animal filters like goodWithKids/goodWithOtherPets/medicallyComplex)
+- needsGoodWithKids (boolean)
+- needsGoodWithOtherPets (boolean)
+- willingMedicallyComplex (boolean)
+
+Notes
+- notes (string, optional)
+
+Mapping Rules (Questionnaire -> Profile/User)
+
+On PUT /api/adopter/questionnaire:
+
+- Upsert adopter_questionnaires for the current user.
+- Update users.phone if phone is provided.
+- Sync overlapping fields into adopter_profiles:
+
+  household_size            = householdSize
+  housing_type              = housingType
+  has_yard                  = hasYard
+  has_kids                  = hasKids
+  has_other_pets            = hasOtherPets
+  needs_good_with_kids      = needsGoodWithKids
+  needs_good_with_other_pets      = needsGoodWithOtherPets
+  willing_medically_complex = willingMedicallyComplex
+  city/state/zip            = city/state/zip
+  notes                     = notes
+
+Application Snapshot
+
+On POST /api/adopter/applications:
+
+- If questionnaireAnswers are included in the request:
+  - Save/update adopter_questionnaires first
+  - Sync adopter_profiles
+  - Save questionnaireAnswers into questionnaire_snapshot_json
+
+- If questionnaireAnswers are not included:
+  - Use the adopter's most recent adopter_questionnaires record
+  - Copy those values into questionnaire_snapshot_json
+
+- Applications must always store a full snapshot of questionnaire answers so staff can review the information exactly as it existed at submission time.
+
+Authentication & Security (Backend)
+- Local auth:
+  - Register/login endpoints for adopters
+  - BCrypt password hashing
+- JWT:
+  - Access token returned after login; frontend attaches Authorization: Bearer <token>
+- Google OAuth2 (optional MVP add-on):
+  - OAuth2 login endpoint; create user if not existing
+  - Map Google email to user.email; password_hash may be null
+- Authorization:
+  - Endpoint-level guards:
+    - PUBLIC routes for animal browsing
+    - ADOPTER routes for applying and viewing own applications
+    - STAFF routes for management actions
+- CORS:
+  - Allow GET, PUT, POST, PATCH, DELETE from Angular frontend
+
+Backend API (MVP Endpoints)
+Auth
+- POST /api/auth/register (adopter)
+- POST /api/auth/login (local)
+- GET  /api/auth/me (returns current user + role)
+- (Optional) GET /oauth2/authorization/google + callback handling
+
+Animals (Public Browsing)
+
+- GET /api/animals
+  Query Parameters:
+    species
+    ageMin
+    ageMax
+    goodWithKids
+    goodWithOtherPets
+    medicallyComplex
+
+  Behavior:
+    Returns animals available for adoption only.
+    "Available" maps to animals whose status is in:
+      {IN_SHELTER, IN_FOSTER}
+
+- GET /api/animals/{id}
+  Returns detailed information about a specific animal.
+  Only accessible if the animal is available for adoption.
+
+- GET /api/animals/{id}/photos
+  Returns all public photos for the specified animal.
+
+
+Animals (Staff Management)
+
+- GET /api/staff/animals
+  Returns all animals in the system regardless of status.
+  Supports filtering by:
+    status
+    species
+    shelterId
+    fosterId
+    intakeDate
+    adoptionStatus
+    medicallyComplex
+  Staff can view animals that are:
+    AVAILABLE
+    ON_HOLD
+    ADOPTED
+    INACTIVE
+    etc.
+
+- POST /api/staff/animals
+  Creates a new animal record (intake).
+  Used when an animal enters the shelter or foster network.
+
+- PUT /api/staff/animals/{id}
+  Updates animal information including:
+    status
+    foster placement
+    shelter assignment
+    behavioral notes
+    adoption details
+
+- DELETE /api/staff/animals/{id}
+  Soft delete only.
+  Implementation should set the animal status to:
+    INACTIVE
+  This preserves historical records and adoption history.
+
+- POST /api/staff/animals/{id}/photos
+  Uploads or attaches a photo to an animal record.
+  Photos may be uploaded directly or saved as a URL (e.g., S3).
+
+- DELETE /api/staff/animals/{id}/photos/{photoId}
+  Removes a photo from the animal record.
+
+Moves / Placement (staff)
+- POST /api/staff/animals/{id}/move/shelter
+  Body: { toShelterId, notes }
+- POST /api/staff/animals/{id}/move/foster
+  Body: { toFosterUserId, notes }
+- POST /api/staff/animals/{id}/status
+  Body: { status, notes }
+
+Applications (adopter)
+- POST /api/adopter/applications
+  Body: { animalId, questionnaireAnswers (optional) }
+- GET  /api/adopter/applications (only own)
+- GET  /api/adopter/applications/{id} (only own)
+- POST /api/adopter/applications/{id}/withdraw (optional)
+
+Applications (staff)
+- GET  /api/staff/applications?status=&animalId=&adopterEmail=
+- GET  /api/staff/applications/{id}
+- POST /api/staff/applications/{id}/approve  Body: { decisionNotes }
+- POST /api/staff/applications/{id}/deny     Body: { decisionNotes }
+
+Employees (staff)
+- POST /api/staff/employees
+- GET /api/staff/employees
+- GET /api/staff/employees/{id}
+- PUT /api/staff/employees/{id} 
+- PATCH /api/staff/employees/{id}/deactivate 
+- PATCH /api/staff/employees/{id}/reactivate 
+- POST /api/staff/employees/{id}/reset-password
+
+Adoption Finalization (staff)
+- POST /api/staff/adoptions
+  Body: { applicationId}
+  Behavior:
+  - Create adoption record
+  - Set animal.status = ADOPTED
+  - Write animal_event: ADOPTED
+  - Adoption cannot be created without an application on file
+
+Adopter Profile (adopter)
+- GET  /api/adopter/profile
+  Returns the currently authenticated adopter’s profile.
+- PUT  /api/adopter/profile
+  Updates adopter profile fields (address, phone, housing type, etc.).
+
+Questionnaire (adopter)
+- GET  /api/adopter/questionnaire
+  Returns the adopter questionnaire responses.
+- PUT  /api/adopter/questionnaire
+  Saves questionnaire responses.
+  Behavior:
+  - Updates questionnaire answers.
+  - Automatically updates corresponding fields in adopter_profile.
+
+Events / Audit (staff limited)
+- GET /api/animals/{id}/events
+  Access:
+  - Staff sees all
+  - Public sees none
+
+Frontend (Angular) — MVP Pages
+Public
+- Home / Browse Animals (grid/list)
+  - Filters: species, age range, good w/ kids, good w/ pets, medically complex
+  - Search by name/breed (optional)
+- Animal Detail Page
+  - Photos, attributes, description, status badge
+  - CTA: “Apply to Adopt” (requires login)
+
+Auth
+- Register / Login
+- (Optional) “Continue with Google”
+
+Adopter
+- Profile / Questionnaire (edit)
+- My Applications list + application details (status, decision notes)
+
+Staff
+- Staff Dashboard
+  - Quick stats: animals by status, recent applications
+- Animals Management
+  - Add new animal (intake)
+  - Edit animal
+  - Move animal (shelter/foster)
+- Employee Management
+  - Add new employees
+  - Deactivate employees
+- Individual employee profiles
+- Applications Review
+  - List with filters
+  - Detail view with approve/deny actions
+- Adoption Finalize (can be part of application approval flow or a separate step)
+
+Employees (staff management)
+
+Base Path: /api/staff/employees
+Access: STAFF-only;
+
+Data Notes:
+- Employees are "staff users" (employees) stored in the users table with staff roles.
+- Initial bootstrap accounts are created directly in the database.
+- Deactivation is soft: set is_enabled=false (do not delete rows).
+- Passwords are always stored hashed.
+
+MVP Workflow Rules (Business Logic)
+- Applying:
+  - Only authenticated adopters can submit applications
+  - Prevent duplicate active applications: same adopter + same animal where status in {SUBMITTED, IN_REVIEW, APPROVED}
+- Approval/Denial:
+  - Only staff can approve/deny
+  - On approve: application.status=APPROVED; optionally set animal.status=ADOPTION_PENDING
+  - On deny: application.status=DENIED (animal status unchanged unless it was ADOPTION_PENDING, then revert)
+- Adoption finalize:
+  - Only staff can finalize
+  - Once adopted, animal cannot be adopted again; status locked to ADOPTED
+- Moves:
+  - Only staff can move placement
+  - Shelter move sets current_shelter_id and clears foster_user_id
+  - Foster move sets current_foster_user_id and may clear shelter_id (or keep shelter as owning org; choose one and enforce consistently)
+- Event log:
+  - Every intake/move/status change/application submit/approval/denial/adoption writes an animal_event row
+
+Acceptance Criteria
+- Public can browse animals and filter results
+- Adopter can register/login, fill profile, and submit an adoption application
+- Staff can:
+  - Create/update animals (intake)
+  - Move animals to shelter or foster
+  - View applications and approve/deny
+  - Finalize adoption and mark animal adopted
+- Database stores:
+  - Users with hashed passwords
+  - Roles
+  - Animals + photos
+  - Applications
+  - Event history for each animal
+- API follows REST conventions, returns consistent error messages for invalid actions (e.g., adopting an already-adopted animal)
+- Basic documentation:
+  - README setup instructions
+  - API endpoint list
+  - Entity overview
+  - How to run frontend/backend locally
+
+Implementation Notes
+- Prefer DTOs for request/response; do not expose entities directly
+- Use service layer for business rules; controllers should stay thin
+- Validate input with javax/jakarta validation annotations
+- Use soft deletes for animals if deletion is required (INACTIVE)
+- Keep “AVAILABLE” as a derived concept for browsing rather than a stored status if desired
+- Photos are stored in AWS
+- Use environment variables with default values intended for application running locally
+- Follow best security practices pertaining to PII and user information
+- Use a global exception handler and implement graceful error handling on both frontend and backend
