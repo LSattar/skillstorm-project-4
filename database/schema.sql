@@ -1,14 +1,15 @@
 -- Animal Shelter Management Platform - MVP Schema
 -- MySQL 8 - Full DDL from project-requirements data model
+-- UUIDs used for users, animals, applications, adoptions, and related FKs to prevent enumeration.
 
 CREATE DATABASE IF NOT EXISTS animal_shelter;
 USE animal_shelter;
 
 -- ---------------------------------------------------------------------------
--- 1) users
+-- 1) users 
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
-    id                  BIGINT       NOT NULL AUTO_INCREMENT,
+    id                  CHAR(36)     NOT NULL,
     email               VARCHAR(255) NOT NULL,
     username            VARCHAR(255) NOT NULL,
     password_hash       VARCHAR(255) NULL,
@@ -33,11 +34,11 @@ CREATE TABLE IF NOT EXISTS roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- 3) user_roles (join)
+-- 3) user_roles
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_roles (
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    role_id BIGINT   NOT NULL,
     PRIMARY KEY (user_id, role_id),
     KEY fk_user_roles_role_id (role_id),
     CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
 -- 4) adopter_profiles
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS adopter_profiles (
-    user_id                  BIGINT       NOT NULL,
+    user_id                  CHAR(36)     NOT NULL,
     address_line1            VARCHAR(255) NULL,
     address_line2            VARCHAR(255) NULL,
     city                     VARCHAR(100) NULL,
@@ -68,11 +69,11 @@ CREATE TABLE IF NOT EXISTS adopter_profiles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- 4b) adopter_questionnaires
+-- 4b) adopter_questionnaires 
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS adopter_questionnaires (
-    id                        BIGINT       NOT NULL AUTO_INCREMENT,
-    user_id                   BIGINT       NOT NULL,
+    id                        CHAR(36)     NOT NULL,
+    user_id                   CHAR(36)     NOT NULL,
     schema_version            INT          NOT NULL DEFAULT 1,
     household_size            INT          NULL,
     housing_type              VARCHAR(20)  NULL,
@@ -111,7 +112,7 @@ CREATE TABLE IF NOT EXISTS shelters (
 -- 6) animals
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS animals (
-    id                     BIGINT       NOT NULL AUTO_INCREMENT,
+    id                     CHAR(36)     NOT NULL,
     name                   VARCHAR(255) NOT NULL,
     species                VARCHAR(20)  NOT NULL,
     breed                  VARCHAR(100) NULL,
@@ -123,7 +124,7 @@ CREATE TABLE IF NOT EXISTS animals (
     description            TEXT         NULL,
     status                 VARCHAR(30)  NOT NULL,
     current_shelter_id     BIGINT       NULL,
-    current_foster_user_id BIGINT       NULL,
+    current_foster_user_id CHAR(36)     NULL,
     created_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -134,11 +135,11 @@ CREATE TABLE IF NOT EXISTS animals (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- 7) animal_photos
+-- 7) animal_photos 
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS animal_photos (
-    id              BIGINT       NOT NULL AUTO_INCREMENT,
-    animal_id       BIGINT       NOT NULL,
+    id              CHAR(36)     NOT NULL,
+    animal_id       CHAR(36)     NOT NULL,
     s3_key          VARCHAR(500) NOT NULL,
     url             VARCHAR(500) NOT NULL,
     is_primary      TINYINT(1)   NOT NULL DEFAULT 0,
@@ -152,17 +153,17 @@ CREATE TABLE IF NOT EXISTS animal_photos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- 8) animal_events
+-- 8) animal_events 
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS animal_events (
-    id                    BIGINT       NOT NULL AUTO_INCREMENT,
-    animal_id             BIGINT       NOT NULL,
+    id                    CHAR(36)     NOT NULL,
+    animal_id             CHAR(36)     NOT NULL,
     event_type            VARCHAR(50)  NOT NULL,
     from_shelter_id       BIGINT       NULL,
     to_shelter_id         BIGINT       NULL,
-    from_foster_user_id   BIGINT       NULL,
-    to_foster_user_id     BIGINT       NULL,
-    performed_by_user_id  BIGINT       NULL,
+    from_foster_user_id   CHAR(36)     NULL,
+    to_foster_user_id     CHAR(36)     NULL,
+    performed_by_user_id  CHAR(36)     NULL,
     notes                 TEXT         NULL,
     occurred_at           DATETIME     NOT NULL,
     PRIMARY KEY (id),
@@ -184,12 +185,12 @@ CREATE TABLE IF NOT EXISTS animal_events (
 -- 9) adoption_applications
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS adoption_applications (
-    id                        BIGINT       NOT NULL AUTO_INCREMENT,
-    animal_id                 BIGINT       NOT NULL,
-    adopter_user_id           BIGINT       NOT NULL,
+    id                        CHAR(36)     NOT NULL,
+    animal_id                 CHAR(36)     NOT NULL,
+    adopter_user_id           CHAR(36)     NOT NULL,
     status                    VARCHAR(20)  NOT NULL,
-    questionnaire_snapshot_json JSON      NULL,
-    staff_reviewer_user_id    BIGINT       NULL,
+    questionnaire_snapshot_json JSON       NULL,
+    staff_reviewer_user_id    CHAR(36)     NULL,
     decision_notes            TEXT         NULL,
     created_at                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -206,12 +207,12 @@ CREATE TABLE IF NOT EXISTS adoption_applications (
 -- 10) adoptions
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS adoptions (
-    id                    BIGINT   NOT NULL AUTO_INCREMENT,
-    animal_id             BIGINT   NOT NULL,
-    adopter_user_id       BIGINT   NOT NULL,
-    application_id        BIGINT   NOT NULL,
+    id                    CHAR(36) NOT NULL,
+    animal_id             CHAR(36) NOT NULL,
+    adopter_user_id       CHAR(36) NOT NULL,
+    application_id        CHAR(36) NOT NULL,
     adopted_at            DATETIME NOT NULL,
-    finalized_by_user_id  BIGINT   NOT NULL,
+    finalized_by_user_id  CHAR(36) NOT NULL,
     notes                 TEXT     NULL,
     PRIMARY KEY (id),
     KEY fk_adoptions_animal (animal_id),
