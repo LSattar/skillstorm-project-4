@@ -443,6 +443,234 @@ MVP Workflow Rules (Business Logic)
 - Event log:
   - Every intake/move/status change/application submit/approval/denial/adoption writes an animal_event row
 
+Testing
+Goal:
+Verify API request/response behavior, validation, and authorization rules without starting a real HTTP server.
+
+Purpose
+Add a backend testing suite that runs locally and verifies:
+1) business logic (service-layer rules and state transitions)
+2) API behavior (request/response, validation, authorization) using mocked HTTP calls
+3) persistence and constraints against a real MySQL 8 instance to catch database-specific behavior early
+
+Testing Stack
+- JUnit 5 (unit and integration testing)
+- AssertJ (assertions)
+- Mockito (mock dependencies in unit tests)
+- Spring Boot Test (test runner and configuration support)
+- MockMvc (mock HTTP requests to controllers)
+- spring-security-test (authorization and role testing)
+- Testcontainers (MySQL 8 container for integration tests)
+
+Test Categories
+
+1) Unit Tests — Service Layer
+
+Goal:
+Verify business logic and workflow rules without starting the full Spring application or web server.
+
+Target Services:
+- ApplicationService
+- AdoptionService
+- AnimalService
+- QuestionnaireService
+
+Key Business Rules to Test:
+
+ApplicationService
+- Prevent duplicate active applications
+  A user cannot create another application for the same animal when an existing application status is:
+  {SUBMITTED, IN_REVIEW, APPROVED}
+  A user cannot create an application for an animal that has been adopted
+
+- Questionnaire snapshot behavior
+  Every application must store a full questionnaire snapshot.
+
+  If questionnaire answers are included in the request:
+  - Save or update adopter_questionnaires first
+  - Sync adopter_profiles
+  - Save questionnaire snapshot in questionnaire_snapshot_json
+
+  If questionnaire answers are not included:
+  - Load the latest adopter_questionnaires record
+  - Copy values into questionnaire_snapshot_json
+
+AdoptionService
+- Adoption cannot be finalized without an existing application.
+- Adoption cannot be finalized if animal.status == ADOPTED.
+
+On successful adoption finalization:
+- Create an adoptions record
+- Update animal.status to ADOPTED
+- Create an animal_event with type ADOPTED
+
+AnimalService (movement and status logic)
+
+Shelter Move
+- Update current_shelter_id
+- Clear current_foster_user_id
+- Create animal_event with type SHELTER_MOVE
+
+Foster Move
+- Update current_foster_user_id
+- Maintain consistent shelter ownership rule
+- Create animal_event with type FOSTER_MOVE
+
+Status Changes
+- Prevent invalid transitions (example: ADOPTED -> IN_FOSTER)
+- Create animal_event with type STATUS_CHANGE
+
+QuestionnaireService
+On questionnaire submission:
+- Upsert adopter_questionnaires record
+- Update users.phone if provided
+- Synchronize overlapping fields into adopter_profiles
+
+Unit Test Implementation
+- Use Mockito to mock repositories and external services.
+- Validate:
+  - expected exceptions for invalid actions
+  - correct returned DTO values
+  - side effects such as entity updates and event creation.
+
+Tools:
+- @WebMvcTest or @SpringBootTest
+- MockMvc for HTTP request simulation
+- spring-security-test for role simulation
+
+Authorization Tests
+
+Public Access (These endpoints must work without authentication)
+- GET /api/animals
+- GET /api/animals/{id}
+
+Adopter Access
+- POST /api/adopter/applications
+- GET /api/adopter/applications
+- GET /api/adopter/profile
+- PUT /api/adopter/questionnaire
+
+Staff Access
+- All /api/staff/** endpoints require STAFF role.
+
+Unauthorized access must return HTTP 403 or 401.
+
+Validation Tests
+
+Verify API returns proper errors when:
+- required fields are missing
+- invalid enum values are submitted
+- forbidden state transitions occur
+- user attempts to modify resources they do not own
+
+Successful Workflow Tests
+
+Examples:
+- Adopter submits adoption application
+- Staff approves application
+- Staff denies application
+- Staff finalizes adoption
+
+Verify:
+- HTTP response codes
+- returned payload structure
+- correct state changes
+
+
+3) Integration Tests — Real Database (Testcontainers)
+
+Goal:
+Verify database interactions, constraints, and multi-step workflows using a real MySQL 8 instance.
+
+Implementation:
+- Use Testcontainers to spin up MySQL automatically during tests.
+- Run Spring Boot with the test profile.
+- Use real repositories and services.
+
+Core Integration Workflow Test
+
+Adoption Workflow
+1. Create adopter user
+2. Create staff user
+3. Create animal with status IN_SHELTER
+4. Adopter submits application
+5. Staff approves application
+6. Staff finalizes adoption
+
+Assertions:
+- animal.status == ADOPTED
+- adoptions table contains record linked to application
+- animal_events table contains:
+  APPLICATION_SUBMITTED
+  APPLICATION_APPROVED
+  ADOPTED
+
+Database Constraint Tests
+
+Verify enforcement of:
+- unique users.email
+- unique users.username
+- unique(user_id, role_id) in user_roles
+- unique adopter_questionnaires.user_id
+- unique animal_photos.s3_key
+
+
+Testing Configuration
+
+Test Profile
+Use application-test.yml with the following characteristics:
+- Testcontainers MySQL datasource
+- External services disabled (AWS S3, etc.)
+- Logging set to INFO
+
+Running Tests
+
+Run all backend tests:
+./mvnw test
+
+Run only integration tests:
+./mvnw test -Dtest=*IntegrationTest
+
+
+S3 Storage Testing
+
+AWS services should not be called during tests.
+
+Photo upload behavior should be tested by:
+- mocking the S3 client/service in unit tests
+- verifying upload calls and parameters
+- verifying database records for animal_photos are created
+
+
+Test Naming Conventions
+
+Unit Tests
+*ServiceTest
+Example:
+AnimalServiceTest
+ApplicationServiceTest
+
+Controller Tests
+*ControllerTest
+Example:
+StaffApplicationsControllerTest
+AnimalControllerTest
+
+Integration Tests
+*IntegrationTest
+Example:
+AdoptionWorkflowIntegrationTest
+
+
+Definition of Done (Backend Testing)
+
+The backend testing suite is considered complete when:
+
+- Service-layer unit tests cover all critical business rules and workflows.
+- Controller tests verify authorization rules, request validation, and successful endpoint flows.
+- At least one full integration test validates the adoption workflow using a real MySQL database through Testcontainers.
+- All tests run locally using a single command (`./mvnw test`) without external dependencies such as AWS.
+
 Acceptance Criteria
 - Public can browse animals and filter results
 - Adopter can register/login, fill profile, and submit an adoption application
