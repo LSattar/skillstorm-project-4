@@ -1,3 +1,10 @@
+app:
+  aws:
+    s3:
+      bucket-name: ljs-animal-shelter-photos
+      region: ${AWS_REGION:us-east-1}
+      presign-expiration-minutes: 60
+
 spring:
   application:
     name: animal-shelter

@@ -1,0 +1,5 @@
+# Disable S3 for unit tests so no AWS credentials are required
+app:
+  aws:
+    s3:
+      bucket-name: ""
