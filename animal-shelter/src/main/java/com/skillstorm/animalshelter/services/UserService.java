@@ -170,4 +170,88 @@ public class UserService {
         userRepository.save(user);
         log.info("Password reset for user id={}", id);
     }
+
+    /**
+     * Find or create a user from Google OAuth (public "Sign in with Google" flow).
+     * Only adopters can sign in this way; existing staff/foster by email must use password.
+     *
+     * @param googleSub   Google "sub" claim (stable user id)
+     * @param email       Google email
+     * @param displayName Google display name (optional)
+     * @return the user to log in
+     * @throws com.skillstorm.animalshelter.exceptions.OAuthUsePasswordRequiredException if a user with this email has STAFF or FOSTER role
+     */
+    @Transactional
+    public User findOrCreateFromGoogle(String googleSub, String email, String displayName) {
+        Optional<User> byGoogleSub = userRepository.findByGoogleSubjectId(googleSub);
+        if (byGoogleSub.isPresent()) {
+            User u = byGoogleSub.get();
+            if (!u.getIsEnabled()) {
+                log.warn("Disabled user attempted Google sign-in, id={}", u.getId());
+                throw new ResourceNotFoundException("Account is disabled");
+            }
+            return u;
+        }
+        Optional<User> byEmail = userRepository.findByEmail(email);
+        if (byEmail.isPresent()) {
+            User existing = byEmail.get();
+            List<String> roles = getRoleNamesByUserId(existing.getId());
+            boolean hasStaffOrFoster = roles.stream().anyMatch(r -> "STAFF".equals(r) || "FOSTER".equals(r));
+            if (hasStaffOrFoster) {
+                log.warn("Staff/foster user attempted Google sign-in without linking first, email={}", email);
+                throw new com.skillstorm.animalshelter.exceptions.OAuthUsePasswordRequiredException(
+                        "Please sign in with your username and password.");
+            }
+            existing.setGoogleSubjectId(googleSub);
+            if (displayName != null && !displayName.isBlank()) {
+                existing.setDisplayName(displayName);
+            }
+            existing.setUpdatedAt(Instant.now());
+            userRepository.save(existing);
+            return existing;
+        }
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail(email);
+        user.setUsername(uniqueUsernameFromEmail(email));
+        user.setPasswordHash(null);
+        user.setDisplayName(displayName);
+        user.setGoogleSubjectId(googleSub);
+        user.setIsEnabled(true);
+        Instant now = Instant.now();
+        user.setCreatedAt(now);
+        user.setUpdatedAt(now);
+        user = userRepository.save(user);
+        Role adopterRole = roleService.findByNameOrThrow("ADOPTER");
+        userRoleRepository.save(new UserRole(user.getId(), adopterRole.getId()));
+        log.info("Created adopter from Google sign-in, id={}, email={}", user.getId(), email);
+        return user;
+    }
+
+    /**
+     * Link Google account to an existing user (staff/foster after password login).
+     */
+    @Transactional
+    public void linkGoogle(UUID userId, String googleSub) {
+        User user = findByIdOrThrow(userId);
+        if (user.getGoogleSubjectId() != null && user.getGoogleSubjectId().equals(googleSub)) {
+            return;
+        }
+        user.setGoogleSubjectId(googleSub);
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+        log.info("Linked Google account for user id={}", userId);
+    }
+
+    private String uniqueUsernameFromEmail(String email) {
+        String base = email != null && email.contains("@") ? email.substring(0, email.indexOf('@')) : "user";
+        base = base.replaceAll("[^a-zA-Z0-9]", "_");
+        if (base.isEmpty()) base = "user";
+        String candidate = base;
+        int n = 0;
+        while (userRepository.existsByUsername(candidate)) {
+            candidate = base + "_" + (++n);
+        }
+        return candidate;
+    }
 }

@@ -18,9 +18,11 @@ CREATE TABLE IF NOT EXISTS users (
     is_enabled          TINYINT(1)   NOT NULL DEFAULT 1,
     created_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    google_subject_id   VARCHAR(255) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_users_email (email),
-    UNIQUE KEY uk_users_username (username)
+    UNIQUE KEY uk_users_username (username),
+    UNIQUE KEY uk_users_google_subject_id (google_subject_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------

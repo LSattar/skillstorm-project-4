@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.skillstorm.animalshelter.dtos.request.LoginRequest;
 import com.skillstorm.animalshelter.dtos.request.RegisterRequest;
 import com.skillstorm.animalshelter.models.User;
+import com.skillstorm.animalshelter.services.JwtService;
 import com.skillstorm.animalshelter.services.UserService;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,11 +35,14 @@ class AuthControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JwtService jwtService;
+
     private AuthController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AuthController(userService, passwordEncoder);
+        controller = new AuthController(userService, passwordEncoder, jwtService);
     }
 
     @Nested
@@ -59,6 +63,7 @@ class AuthControllerTest {
             user.setIsEnabled(true);
             when(userService.register(any(RegisterRequest.class))).thenReturn(user);
             when(userService.getRoleNamesByUserId(user.getId())).thenReturn(List.of("ADOPTER"));
+            when(jwtService.createToken(user.getId(), user.getUsername(), List.of("ADOPTER"))).thenReturn("test-jwt-token");
 
             ResponseEntity<com.skillstorm.animalshelter.dtos.response.LoginResponse> result = controller.register(req);
 
@@ -89,6 +94,7 @@ class AuthControllerTest {
             when(userService.findByUsername("adopter1")).thenReturn(Optional.of(user));
             when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
             when(userService.getRoleNamesByUserId(user.getId())).thenReturn(List.of("ADOPTER"));
+            when(jwtService.createToken(user.getId(), user.getUsername(), List.of("ADOPTER"))).thenReturn("test-jwt-token");
 
             ResponseEntity<com.skillstorm.animalshelter.dtos.response.LoginResponse> result = controller.login(req);
 

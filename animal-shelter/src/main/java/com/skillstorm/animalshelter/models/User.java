@@ -47,6 +47,9 @@ public class User {
     @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME")
     private Instant updatedAt;
 
+    @Column(name = "google_subject_id", length = 255, unique = true)
+    private String googleSubjectId;
+
     public User() {
     }
 
@@ -120,5 +123,13 @@ public class User {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getGoogleSubjectId() {
+        return googleSubjectId;
+    }
+
+    public void setGoogleSubjectId(String googleSubjectId) {
+        this.googleSubjectId = googleSubjectId;
     }
 }
