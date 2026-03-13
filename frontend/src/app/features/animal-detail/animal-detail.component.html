@@ -1,0 +1,50 @@
+@if (notFound()) {
+  <div class="not-found">
+    <p>Animal not found.</p>
+    <a routerLink="/">Back to all animals</a>
+  </div>
+} @else if (animal(); as a) {
+  <div class="detail">
+    <a routerLink="/" class="back-link">← Back to all animals</a>
+
+    <h1>{{ a.name }}</h1>
+
+    <div class="photos-section">
+      @if (primaryPhoto(); as photo) {
+        <img [src]="photo.url" [alt]="a.name" class="primary-photo" />
+      } @else {
+        <div class="no-photo">Photo coming soon</div>
+      }
+    </div>
+
+    <dl class="attrs">
+      <dt>Species</dt>
+      <dd>{{ a.species }}</dd>
+      @if (a.breed) {
+        <dt>Breed</dt>
+        <dd>{{ a.breed }}</dd>
+      }
+      @if (a.sex) {
+        <dt>Sex</dt>
+        <dd>{{ a.sex }}</dd>
+      }
+      @if (a.ageMonths != null) {
+        <dt>Age</dt>
+        <dd>{{ a.ageMonths }} months</dd>
+      }
+      <dt>Good with kids</dt>
+      <dd>{{ a.goodWithKids ?? '—' }}</dd>
+      <dt>Good with other pets</dt>
+      <dd>{{ a.goodWithOtherPets ?? '—' }}</dd>
+      <dt>Medically complex</dt>
+      <dd>{{ a.medicallyComplex ?? '—' }}</dd>
+    </dl>
+
+    @if (a.description) {
+      <section class="description">
+        <h2>About</h2>
+        <p>{{ a.description }}</p>
+      </section>
+    }
+  </div>
+}

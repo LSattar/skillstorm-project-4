@@ -1,0 +1,22 @@
+@if (loading()) {
+  <p class="message">Loading…</p>
+} @else if (error()) {
+  <p class="message error">{{ error() }}</p>
+} @else if (animals().length === 0) {
+  <p class="message">No animals found.</p>
+} @else {
+  <div class="grid">
+    @for (animal of animals(); track animal.id) {
+      <a [routerLink]="['/animals', animal.id]" class="card">
+        <div class="card-inner">
+          @if (hasPhoto(animal)) {
+            <img [src]="animal.photoUrl!" [alt]="animal.name" class="card-img" />
+          } @else {
+            <span class="no-photo">Photo coming soon</span>
+          }
+          <span class="card-name">{{ animal.name }}</span>
+        </div>
+      </a>
+    }
+  </div>
+}
