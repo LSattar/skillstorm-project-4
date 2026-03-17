@@ -1,0 +1,55 @@
+<h2>Questionnaire</h2>
+
+@if (loading) {
+  <p>Loading questionnaire…</p>
+} @else {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+  @if (success) {
+    <p class="success">Questionnaire saved.</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <label for="householdSize">Household size</label>
+      <input id="householdSize" formControlName="householdSize" type="number" min="0" />
+    </div>
+    <div class="form-row">
+      <label for="phone">Phone</label>
+      <input id="phone" formControlName="phone" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="housingType">Housing type</label>
+      <select id="housingType" formControlName="housingType">
+        <option value="">—</option>
+        @for (t of housingTypes; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasYard" type="checkbox" /> Has yard</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasKids" type="checkbox" /> Has kids</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasOtherPets" type="checkbox" /> Has other pets</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="needsGoodWithKids" type="checkbox" /> Needs good with kids</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="needsGoodWithOtherPets" type="checkbox" /> Needs good with other pets</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="willingMedicallyComplex" type="checkbox" /> Willing to consider medically complex</label>
+    </div>
+    <div class="form-row">
+      <label for="notes">Notes</label>
+      <textarea id="notes" formControlName="notes" rows="3"></textarea>
+    </div>
+    <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save questionnaire' }}</button>
+  </form>
+}

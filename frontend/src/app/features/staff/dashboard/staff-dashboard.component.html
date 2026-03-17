@@ -1,0 +1,57 @@
+<h2>Staff Dashboard</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+} @else {
+  <section class="dashboard-section">
+    <h3>Animals by status</h3>
+    <div class="stats-grid">
+      @for (entry of statsByStatus | keyvalue; track entry.key) {
+        <div class="stat-card">
+          <span class="stat-value">{{ entry.value }}</span>
+          <span class="stat-label">{{ statusLabel(entry.key) }}</span>
+        </div>
+      }
+      @if (!hasStats) {
+        <p>No animals in system.</p>
+      }
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <h3>Recent applications</h3>
+    @if (recentApplications.length === 0) {
+      <p>No applications yet.</p>
+    } @else {
+      <table class="applications-table">
+        <thead>
+          <tr>
+            <th>Animal</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of recentApplications; track app.id) {
+            <tr>
+              <td>{{ app.animalId }}</td>
+              <td>{{ statusLabel(app.status) }}</td>
+              <td>{{ app.createdAt | date:'short' }}</td>
+              <td><a [routerLink]="['/staff/applications', app.id]">Review</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+    <p><a routerLink="/staff/applications">View all applications</a></p>
+  </section>
+
+  <section class="quick-links">
+    <a routerLink="/staff/animals" class="btn">Manage animals</a>
+    <a routerLink="/staff/applications" class="btn">Review applications</a>
+    <a routerLink="/staff/employees" class="btn">Employees</a>
+  </section>
+}

@@ -1,0 +1,60 @@
+<h2>Employee Detail</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error && !employee) {
+  <p class="error">{{ error }}</p>
+  <a routerLink="/staff/employees">Back to employees</a>
+} @else if (employee) {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <dl class="detail-list">
+    <dt>Username</dt>
+    <dd>{{ employee.username }}</dd>
+    <dt>Created</dt>
+    <dd>{{ employee.createdAt | date:'medium' }}</dd>
+    <dt>Enabled</dt>
+    <dd>{{ employee.isEnabled !== false ? 'Yes' : 'No' }}</dd>
+    <dt>Roles</dt>
+    <dd>{{ employee.roles?.join(', ') ?? '—' }}</dd>
+  </dl>
+
+  <section class="edit-section">
+    <h3>Edit profile</h3>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input id="email" formControlName="email" type="email" />
+      </div>
+      <div class="form-row">
+        <label for="displayName">Display name</label>
+        <input id="displayName" formControlName="displayName" type="text" />
+      </div>
+      <div class="form-row">
+        <label for="phone">Phone</label>
+        <input id="phone" formControlName="phone" type="text" />
+      </div>
+      <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
+    </form>
+  </section>
+
+  <section class="actions-section">
+    <h3>Actions</h3>
+    @if (employee.isEnabled !== false) {
+      <button type="button" class="btn-warning" (click)="deactivate()" [disabled]="actionInProgress !== null">
+        {{ actionInProgress === 'deactivate' ? 'Deactivating…' : 'Deactivate' }}
+      </button>
+    } @else {
+      <button type="button" class="btn-success" (click)="reactivate()" [disabled]="actionInProgress !== null">
+        {{ actionInProgress === 'reactivate' ? 'Reactivating…' : 'Reactivate' }}
+      </button>
+    }
+    <button type="button" class="btn-secondary" (click)="resetPassword()" [disabled]="actionInProgress !== null">
+      {{ actionInProgress === 'reset' ? 'Resetting…' : 'Reset password' }}
+    </button>
+  </section>
+
+  <p><a routerLink="/staff/employees">Back to employees</a></p>
+}

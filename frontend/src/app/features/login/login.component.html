@@ -1,0 +1,21 @@
+<div class="login-page">
+  <h1>Login</h1>
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <label for="username">Username</label>
+      <input id="username" formControlName="username" type="text" autocomplete="username" />
+    </div>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input id="password" formControlName="password" type="password" autocomplete="current-password" />
+    </div>
+    <button type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign in' }}</button>
+  </form>
+
+  <p><a routerLink="/">Back to home</a></p>
+</div>

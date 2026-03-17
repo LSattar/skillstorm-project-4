@@ -1,0 +1,9 @@
+.applications-table { width: 100%; border-collapse: collapse; }
+.applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+.status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+.status-submitted { background: color-mix(in srgb, var(--color-surface) 35%, white); border: 1px solid var(--color-border); }
+.status-in_review { background: color-mix(in srgb, var(--color-accent) 30%, white); border: 1px solid var(--color-border); }
+.status-approved { background: color-mix(in srgb, var(--color-primary) 25%, white); border: 1px solid var(--color-border); }
+.status-denied { background: color-mix(in srgb, var(--color-danger) 35%, white); border: 1px solid var(--color-border); }
+.status-withdrawn { background: color-mix(in srgb, var(--color-border) 25%, white); border: 1px solid var(--color-border); }
+.error { color: var(--color-danger); }

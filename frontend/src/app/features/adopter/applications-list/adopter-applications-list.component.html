@@ -1,0 +1,30 @@
+<h2>My Applications</h2>
+
+@if (loading) {
+  <p>Loading applications…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+} @else if (applications.length === 0) {
+  <p>You have no adoption applications yet. <a routerLink="/">Browse animals</a> to apply.</p>
+} @else {
+  <table class="applications-table">
+    <thead>
+      <tr>
+        <th>Animal ID</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (app of applications; track app.id) {
+        <tr>
+          <td>{{ app.animalId }}</td>
+          <td><span class="status-badge" [class]="'status-' + app.status?.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
+          <td>{{ app.createdAt | date:'short' }}</td>
+          <td><a [routerLink]="['/adopter/applications', app.id]">View</a></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

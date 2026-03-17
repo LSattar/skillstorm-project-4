@@ -1,0 +1,7 @@
+.move-section { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: 6px; background: color-mix(in srgb, var(--color-surface) 20%, white); }
+.move-section h3 { margin-top: 0; }
+.form-row { margin-bottom: 0.75rem; }
+.form-row label { display: block; margin-bottom: 0.25rem; }
+.form-row input, .form-row select { width: 100%; max-width: 20rem; padding: 0.35rem 0.5rem; }
+.move-section button { margin-right: 0.5rem; margin-top: 0.25rem; }
+.error { color: var(--color-danger); }

@@ -1,0 +1,39 @@
+<h2>Employee Management</h2>
+
+<p><a routerLink="/staff/employees/new" class="btn">Add employee</a></p>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+} @else {
+  <table class="employees-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Display name</th>
+        <th>Roles</th>
+        <th>Enabled</th>
+        <th>Created</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (e of employees; track e.id) {
+        <tr [class.disabled]="e.isEnabled === false">
+          <td>{{ e.username }}</td>
+          <td>{{ e.email }}</td>
+          <td>{{ e.displayName ?? '—' }}</td>
+          <td>{{ e.roles?.join(', ') ?? '—' }}</td>
+          <td>{{ e.isEnabled !== false ? 'Yes' : 'No' }}</td>
+          <td>{{ e.createdAt | date:'short' }}</td>
+          <td><a [routerLink]="['/staff/employees', e.id]">View</a></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (employees.length === 0) {
+    <p>No employees.</p>
+  }
+}

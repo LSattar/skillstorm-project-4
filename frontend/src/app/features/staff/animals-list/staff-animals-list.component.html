@@ -1,0 +1,58 @@
+<h2>Animals Management</h2>
+
+<p><a routerLink="/staff/animals/new" class="btn">Add animal (intake)</a></p>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+} @else {
+  <div class="filters">
+    <label>Status <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+      <option value="">All</option>
+      <option value="IN_SHELTER">In shelter</option>
+      <option value="IN_FOSTER">In foster</option>
+      <option value="ADOPTION_PENDING">Adoption pending</option>
+      <option value="ADOPTED">Adopted</option>
+      <option value="ON_HOLD">On hold</option>
+      <option value="INACTIVE">Inactive</option>
+    </select></label>
+    <label>Species <select [(ngModel)]="filterSpecies" (ngModelChange)="applyFilters()">
+      <option value="">All</option>
+      <option value="DOG">Dog</option>
+      <option value="CAT">Cat</option>
+      <option value="OTHER">Other</option>
+    </select></label>
+  </div>
+
+  <table class="animals-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Species</th>
+        <th>Status</th>
+        <th>Shelter</th>
+        <th>Updated</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (a of filtered; track a.id) {
+        <tr>
+          <td>{{ a.name }}</td>
+          <td>{{ a.species }}</td>
+          <td><span class="status-badge">{{ statusLabel(a.status ?? '') }}</span></td>
+          <td>{{ a.currentShelterName ?? a.currentShelterId ?? '—' }}</td>
+          <td>{{ a.updatedAt | date:'short' }}</td>
+          <td>
+            <a [routerLink]="['/staff/animals', a.id, 'edit']">Edit</a>
+            <a [routerLink]="['/staff/animals', a.id, 'move']">Move</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (filtered.length === 0) {
+    <p>No animals match the filters.</p>
+  }
+}

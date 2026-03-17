@@ -1,0 +1,74 @@
+<h2>Move / Status: {{ animalName || '…' }}</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error && !animalName) {
+  <p class="error">{{ error }}</p>
+  <a routerLink="/staff/animals">Back to animals</a>
+} @else {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <section class="move-section">
+    <h3>Move to shelter</h3>
+    <form [formGroup]="moveShelterForm" (ngSubmit)="moveToShelter()">
+      <div class="form-row">
+        <label for="toShelterId">Shelter</label>
+        <select id="toShelterId" formControlName="toShelterId">
+          <option [ngValue]="null">—</option>
+          @for (s of shelters; track s.id) {
+            <option [ngValue]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="moveNotes1">Notes</label>
+        <input id="moveNotes1" formControlName="notes" type="text" />
+      </div>
+      <button type="submit" [disabled]="submitting || !moveShelterForm.get('toShelterId')?.value">Move to shelter</button>
+    </form>
+  </section>
+
+  <section class="move-section">
+    <h3>Move to foster</h3>
+    <form [formGroup]="moveFosterForm" (ngSubmit)="moveToFoster()">
+      <div class="form-row">
+        <label for="toFosterUserId">Foster</label>
+        <select id="toFosterUserId" formControlName="toFosterUserId">
+          <option [ngValue]="null">—</option>
+          @for (f of fosters; track f.id) {
+            <option [ngValue]="f.id">{{ f.displayName || f.username }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="moveNotes2">Notes</label>
+        <input id="moveNotes2" formControlName="notes" type="text" />
+      </div>
+      <button type="submit" [disabled]="submitting || !moveFosterForm.get('toFosterUserId')?.value">Move to foster</button>
+    </form>
+  </section>
+
+  <section class="move-section">
+    <h3>Update status</h3>
+    <form [formGroup]="statusForm" (ngSubmit)="updateStatus()">
+      <div class="form-row">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          <option value="">—</option>
+          @for (s of statusOptions; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="statusNotes">Notes</label>
+        <input id="statusNotes" formControlName="notes" type="text" />
+      </div>
+      <button type="submit" [disabled]="submitting || !statusForm.get('status')?.value">Update status</button>
+    </form>
+  </section>
+
+  <p><a routerLink="/staff/animals">Back to animals</a></p>
+}

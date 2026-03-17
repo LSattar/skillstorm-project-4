@@ -1,0 +1,30 @@
+<h2>Application Detail</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+  <a routerLink="/adopter/applications">Back to applications</a>
+} @else if (application) {
+  <dl class="detail-list">
+    <dt>Animal ID</dt>
+    <dd><a [routerLink]="['/animals', application.animalId]">{{ application.animalId }}</a></dd>
+    <dt>Status</dt>
+    <dd><span class="status-badge" [class]="'status-' + application.status?.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
+    <dt>Submitted</dt>
+    <dd>{{ application.createdAt | date:'medium' }}</dd>
+    @if (application.updatedAt) {
+      <dt>Updated</dt>
+      <dd>{{ application.updatedAt | date:'medium' }}</dd>
+    }
+    @if (application.decisionNotes) {
+      <dt>Decision notes</dt>
+      <dd>{{ application.decisionNotes }}</dd>
+    }
+  </dl>
+  @if (application.questionnaireSnapshotJson) {
+    <h3>Your answers at time of submission</h3>
+    <pre class="snapshot">{{ application.questionnaireSnapshotJson }}</pre>
+  }
+  <p><a routerLink="/adopter/applications">Back to applications</a></p>
+}

@@ -1,0 +1,66 @@
+<h2>Application Detail</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error && !application) {
+  <p class="error">{{ error }}</p>
+  <a routerLink="/staff/applications">Back to applications</a>
+} @else if (application) {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <dl class="detail-list">
+    <dt>Animal ID</dt>
+    <dd><a [routerLink]="['/animals', application.animalId]">{{ application.animalId }}</a></dd>
+    <dt>Adopter</dt>
+    <dd>{{ application.adopterUserId }}</dd>
+    <dt>Status</dt>
+    <dd><span class="status-badge" [class]="'status-' + application.status?.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
+    <dt>Submitted</dt>
+    <dd>{{ application.createdAt | date:'medium' }}</dd>
+    @if (application.updatedAt) {
+      <dt>Updated</dt>
+      <dd>{{ application.updatedAt | date:'medium' }}</dd>
+    }
+    @if (application.decisionNotes) {
+      <dt>Decision notes</dt>
+      <dd>{{ application.decisionNotes }}</dd>
+    }
+  </dl>
+
+  @if (application.questionnaireSnapshotJson) {
+    <h3>Questionnaire snapshot</h3>
+    <pre class="snapshot">{{ application.questionnaireSnapshotJson }}</pre>
+  }
+
+  @if (application.status === 'SUBMITTED' || application.status === 'IN_REVIEW') {
+    <section class="actions-panel">
+      <h3>Decision</h3>
+      <div class="form-row">
+        <label for="decisionNotes">Notes (optional)</label>
+        <textarea id="decisionNotes" [(ngModel)]="decisionNotes" rows="2" placeholder="Decision notes"></textarea>
+      </div>
+      <div class="action-buttons">
+        <button type="button" class="btn-approve" (click)="approve()" [disabled]="actionInProgress !== null">
+          {{ actionInProgress === 'approve' ? 'Approving…' : 'Approve' }}
+        </button>
+        <button type="button" class="btn-deny" (click)="deny()" [disabled]="actionInProgress !== null">
+          {{ actionInProgress === 'deny' ? 'Denying…' : 'Deny' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (canFinalize) {
+    <section class="actions-panel">
+      <h3>Finalize adoption</h3>
+      <p>Application is approved. Complete the adoption to mark the animal as adopted.</p>
+      <button type="button" class="btn-finalize" (click)="finalize()" [disabled]="actionInProgress !== null">
+        {{ actionInProgress === 'finalize' ? 'Finalizing…' : 'Finalize adoption' }}
+      </button>
+    </section>
+  }
+
+  <p><a routerLink="/staff/applications">Back to applications</a></p>
+}

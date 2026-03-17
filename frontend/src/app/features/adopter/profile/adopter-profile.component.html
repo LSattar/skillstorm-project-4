@@ -1,0 +1,71 @@
+<h2>My Profile</h2>
+
+@if (loading) {
+  <p>Loading profile…</p>
+} @else {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+  @if (success) {
+    <p class="success">Profile saved.</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <label for="addressLine1">Address line 1</label>
+      <input id="addressLine1" formControlName="addressLine1" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="addressLine2">Address line 2</label>
+      <input id="addressLine2" formControlName="addressLine2" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="city">City</label>
+      <input id="city" formControlName="city" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="state">State</label>
+      <input id="state" formControlName="state" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="zip">ZIP</label>
+      <input id="zip" formControlName="zip" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="householdSize">Household size</label>
+      <input id="householdSize" formControlName="householdSize" type="number" min="0" />
+    </div>
+    <div class="form-row">
+      <label for="housingType">Housing type</label>
+      <select id="housingType" formControlName="housingType">
+        <option value="">—</option>
+        @for (t of housingTypes; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasYard" type="checkbox" /> Has yard</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasKids" type="checkbox" /> Has kids</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="hasOtherPets" type="checkbox" /> Has other pets</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="needsGoodWithKids" type="checkbox" /> Needs good with kids</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="needsGoodWithOtherPets" type="checkbox" /> Needs good with other pets</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="willingMedicallyComplex" type="checkbox" /> Willing to consider medically complex</label>
+    </div>
+    <div class="form-row">
+      <label for="notes">Notes</label>
+      <textarea id="notes" formControlName="notes" rows="3"></textarea>
+    </div>
+    <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save profile' }}</button>
+  </form>
+}

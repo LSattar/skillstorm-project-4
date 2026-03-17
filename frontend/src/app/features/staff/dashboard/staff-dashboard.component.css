@@ -1,0 +1,11 @@
+.dashboard-section { margin-bottom: 1.5rem; }
+.stats-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.5rem; }
+.stat-card { background: color-mix(in srgb, var(--color-surface) 40%, white); padding: 0.75rem 1rem; border-radius: 6px; min-width: 6rem; border: 1px solid var(--color-border); }
+.stat-value { display: block; font-size: 1.5rem; font-weight: 600; }
+.stat-label { font-size: 0.85rem; color: var(--color-text); }
+.applications-table { width: 100%; border-collapse: collapse; }
+.applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+.quick-links { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.quick-links .btn { padding: 0.5rem 1rem; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 4px; }
+.quick-links .btn:hover { background: color-mix(in srgb, var(--color-primary) 75%, black); }
+.error { color: var(--color-danger); }

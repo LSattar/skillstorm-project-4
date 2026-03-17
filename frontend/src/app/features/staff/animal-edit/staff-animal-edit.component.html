@@ -1,0 +1,68 @@
+<h2>Edit Animal</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+  <a routerLink="/staff/animals">Back to animals</a>
+} @else {
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <label for="name">Name</label>
+      <input id="name" formControlName="name" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="species">Species</label>
+      <select id="species" formControlName="species">
+        @for (s of speciesOptions; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="breed">Breed</label>
+      <input id="breed" formControlName="breed" type="text" />
+    </div>
+    <div class="form-row">
+      <label for="sex">Sex</label>
+      <select id="sex" formControlName="sex">
+        <option value="">—</option>
+        @for (s of sexOptions; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="ageMonths">Age (months)</label>
+      <input id="ageMonths" formControlName="ageMonths" type="number" min="0" />
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="goodWithKids" type="checkbox" /> Good with kids</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="goodWithOtherPets" type="checkbox" /> Good with other pets</label>
+    </div>
+    <div class="form-row checkbox-row">
+      <label><input formControlName="medicallyComplex" type="checkbox" /> Medically complex</label>
+    </div>
+    <div class="form-row">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+      <label for="status">Status</label>
+      <select id="status" formControlName="status">
+        @for (s of statusOptions; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
+      <a routerLink="/staff/animals">Back to animals</a>
+    </div>
+  </form>
+}

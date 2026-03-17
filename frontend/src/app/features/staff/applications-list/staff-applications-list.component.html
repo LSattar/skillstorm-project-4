@@ -1,0 +1,46 @@
+<h2>Applications Review</h2>
+
+@if (loading) {
+  <p>Loading…</p>
+} @else if (error) {
+  <p class="error">{{ error }}</p>
+} @else {
+  <div class="filters">
+    <label>Status
+      <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+        <option value="">All</option>
+        <option value="SUBMITTED">Submitted</option>
+        <option value="IN_REVIEW">In review</option>
+        <option value="APPROVED">Approved</option>
+        <option value="DENIED">Denied</option>
+        <option value="WITHDRAWN">Withdrawn</option>
+      </select>
+    </label>
+  </div>
+
+  <table class="applications-table">
+    <thead>
+      <tr>
+        <th>Animal ID</th>
+        <th>Adopter</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (app of filtered; track app.id) {
+        <tr>
+          <td>{{ app.animalId }}</td>
+          <td>{{ app.adopterUserId }}</td>
+          <td><span class="status-badge" [class]="'status-' + app.status?.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
+          <td>{{ app.createdAt | date:'short' }}</td>
+          <td><a [routerLink]="['/staff/applications', app.id]">Review</a></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (filtered.length === 0) {
+    <p>No applications match.</p>
+  }
+}
