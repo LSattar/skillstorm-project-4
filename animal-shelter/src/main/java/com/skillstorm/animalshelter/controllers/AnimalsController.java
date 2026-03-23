@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,8 @@ import com.skillstorm.animalshelter.services.S3Service;
 @RestController
 @RequestMapping("/api/animals")
 public class AnimalsController {
+
+    private static final Logger log = LoggerFactory.getLogger(AnimalsController.class);
 
     private final AnimalService animalService;
     private final AnimalPhotoService animalPhotoService;
@@ -49,6 +53,7 @@ public class AnimalsController {
     public ResponseEntity<AnimalResponse> getById(@PathVariable UUID id) {
         Animal animal = animalService.findByIdOrThrow(id);
         if (!"IN_SHELTER".equals(animal.getStatus()) && !"IN_FOSTER".equals(animal.getStatus())) {
+            log.warn("Public request for unavailable animal id={}, status={}", id, animal.getStatus());
             throw new com.skillstorm.animalshelter.exceptions.ResourceNotFoundException("Animal not found or not available: " + id);
         }
         return ResponseEntity.ok(toResponse(animal));

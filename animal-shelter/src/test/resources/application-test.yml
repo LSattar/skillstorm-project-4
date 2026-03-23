@@ -3,3 +3,7 @@ app:
   aws:
     s3:
       bucket-name: ""
+
+logging:
+  level:
+    root: INFO

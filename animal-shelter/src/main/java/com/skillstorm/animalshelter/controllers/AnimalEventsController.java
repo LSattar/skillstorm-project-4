@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,8 @@ import com.skillstorm.animalshelter.services.AnimalEventService;
 @RequestMapping("/api/animals")
 public class AnimalEventsController {
 
+    private static final Logger log = LoggerFactory.getLogger(AnimalEventsController.class);
+
     private final AnimalEventService animalEventService;
 
     public AnimalEventsController(AnimalEventService animalEventService) {
@@ -26,6 +30,7 @@ public class AnimalEventsController {
 
     @GetMapping("/{id}/events")
     public ResponseEntity<List<AnimalEventResponse>> getEvents(@PathVariable UUID id) {
+        log.info("Fetching events for animal id={}", id);
         List<AnimalEvent> events = animalEventService.findByAnimalIdOrderByOccurredAtDesc(id);
         return ResponseEntity.ok(events.stream().map(this::toResponse).collect(Collectors.toList()));
     }

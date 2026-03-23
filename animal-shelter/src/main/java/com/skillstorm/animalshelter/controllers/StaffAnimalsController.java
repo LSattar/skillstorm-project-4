@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.skillstorm.animalshelter.dtos.request.CreateAnimalPhotoRequest;
 import com.skillstorm.animalshelter.dtos.request.CreateAnimalRequest;
@@ -35,6 +39,8 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/staff/animals")
 public class StaffAnimalsController {
+
+    private static final Logger log = LoggerFactory.getLogger(StaffAnimalsController.class);
 
     private final AnimalService animalService;
     private final AnimalPhotoService animalPhotoService;
@@ -94,20 +100,23 @@ public class StaffAnimalsController {
     }
 
     @PostMapping("/{id}/move/shelter")
-    public ResponseEntity<AnimalResponse> moveToShelter(@PathVariable UUID id, @Valid @RequestBody MoveToShelterRequest req) {
-        Animal animal = animalService.moveToShelter(id, req.getToShelterId(), req.getNotes(), null);
+    public ResponseEntity<AnimalResponse> moveToShelter(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody MoveToShelterRequest req) {
+        UUID staffUserId = currentUserId(authentication);
+        Animal animal = animalService.moveToShelter(id, req.getToShelterId(), req.getNotes(), staffUserId);
         return ResponseEntity.ok(toResponse(animal));
     }
 
     @PostMapping("/{id}/move/foster")
-    public ResponseEntity<AnimalResponse> moveToFoster(@PathVariable UUID id, @Valid @RequestBody MoveToFosterRequest req) {
-        Animal animal = animalService.moveToFoster(id, req.getToFosterUserId(), req.getNotes(), null);
+    public ResponseEntity<AnimalResponse> moveToFoster(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody MoveToFosterRequest req) {
+        UUID staffUserId = currentUserId(authentication);
+        Animal animal = animalService.moveToFoster(id, req.getToFosterUserId(), req.getNotes(), staffUserId);
         return ResponseEntity.ok(toResponse(animal));
     }
 
     @PostMapping("/{id}/status")
-    public ResponseEntity<AnimalResponse> updateStatus(@PathVariable UUID id, @Valid @RequestBody UpdateStatusRequest req) {
-        Animal animal = animalService.updateStatus(id, req.getStatus(), req.getNotes(), null);
+    public ResponseEntity<AnimalResponse> updateStatus(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody UpdateStatusRequest req) {
+        UUID staffUserId = currentUserId(authentication);
+        Animal animal = animalService.updateStatus(id, req.getStatus(), req.getNotes(), staffUserId);
         return ResponseEntity.ok(toResponse(animal));
     }
 
@@ -144,5 +153,13 @@ public class StaffAnimalsController {
         r.setFileSizeBytes(p.getFileSizeBytes());
         r.setCreatedAt(p.getCreatedAt());
         return r;
+    }
+
+    private UUID currentUserId(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof UUID userId) {
+            return userId;
+        }
+        log.warn("Staff animals endpoint accessed without valid authentication");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 }

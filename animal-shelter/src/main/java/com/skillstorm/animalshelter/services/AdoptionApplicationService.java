@@ -42,9 +42,14 @@ public class AdoptionApplicationService {
 
     @Transactional
     public AdoptionApplication create(UUID adopterUserId, CreateApplicationRequest req) {
-        if (!animalRepository.existsById(req.getAnimalId())) {
+        Animal animal = animalRepository.findById(req.getAnimalId()).orElse(null);
+        if (animal == null) {
             log.error("Animal not found for application, animalId={}", req.getAnimalId());
             throw new ResourceNotFoundException("Animal not found: " + req.getAnimalId());
+        }
+        if ("ADOPTED".equals(animal.getStatus())) {
+            log.error("Cannot create application for adopted animal, animalId={}", req.getAnimalId());
+            throw new ConflictException("Cannot apply for an adopted animal");
         }
         if (!userRepository.existsById(adopterUserId)) {
             log.error("User not found for application, adopterUserId={}", adopterUserId);

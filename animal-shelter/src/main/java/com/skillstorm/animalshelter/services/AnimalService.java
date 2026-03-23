@@ -166,6 +166,9 @@ public class AnimalService {
     public Animal updateStatus(UUID animalId, String status, String notes, UUID performedByUserId) {
         Animal animal = findByIdOrThrow(animalId);
         String previousStatus = animal.getStatus();
+        if ("ADOPTED".equals(previousStatus) && !"ADOPTED".equals(status)) {
+            throw new IllegalArgumentException("Invalid status transition from ADOPTED to " + status);
+        }
         animal.setStatus(status);
         animal.setUpdatedAt(Instant.now());
         animal = animalRepository.save(animal);

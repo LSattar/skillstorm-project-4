@@ -4,15 +4,19 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.skillstorm.animalshelter.dtos.request.ApproveApplicationRequest;
 import com.skillstorm.animalshelter.dtos.request.DenyApplicationRequest;
@@ -25,6 +29,8 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/staff/applications")
 public class StaffApplicationsController {
+
+    private static final Logger log = LoggerFactory.getLogger(StaffApplicationsController.class);
 
     private final AdoptionApplicationService applicationService;
 
@@ -48,16 +54,18 @@ public class StaffApplicationsController {
     }
 
     @PostMapping("/{id}/approve")
-    public ResponseEntity<AdoptionApplicationResponse> approve(@PathVariable UUID id, @RequestHeader(name = "X-User-Id", required = false) UUID staffUserId, @Valid @RequestBody(required = false) ApproveApplicationRequest req) {
+    public ResponseEntity<AdoptionApplicationResponse> approve(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody(required = false) ApproveApplicationRequest req) {
+        UUID staffUserId = currentUserId(authentication);
         String notes = req != null ? req.getDecisionNotes() : null;
-        AdoptionApplication app = applicationService.approve(id, staffUserId != null ? staffUserId : UUID.randomUUID(), notes);
+        AdoptionApplication app = applicationService.approve(id, staffUserId, notes);
         return ResponseEntity.ok(toResponse(app));
     }
 
     @PostMapping("/{id}/deny")
-    public ResponseEntity<AdoptionApplicationResponse> deny(@PathVariable UUID id, @RequestHeader(name = "X-User-Id", required = false) UUID staffUserId, @Valid @RequestBody(required = false) DenyApplicationRequest req) {
+    public ResponseEntity<AdoptionApplicationResponse> deny(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody(required = false) DenyApplicationRequest req) {
+        UUID staffUserId = currentUserId(authentication);
         String notes = req != null ? req.getDecisionNotes() : null;
-        AdoptionApplication app = applicationService.deny(id, staffUserId != null ? staffUserId : UUID.randomUUID(), notes);
+        AdoptionApplication app = applicationService.deny(id, staffUserId, notes);
         return ResponseEntity.ok(toResponse(app));
     }
 
@@ -73,5 +81,13 @@ public class StaffApplicationsController {
         r.setCreatedAt(a.getCreatedAt());
         r.setUpdatedAt(a.getUpdatedAt());
         return r;
+    }
+
+    private UUID currentUserId(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof UUID userId) {
+            return userId;
+        }
+        log.warn("Staff applications endpoint accessed without valid authentication");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 }
