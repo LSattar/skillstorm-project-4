@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe, KeyValuePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { StaffAnimalsService } from '../../../core/services/staff-animals.service';
 import { StaffApplicationsService } from '../../../core/services/staff-applications.service';
 import type { AnimalResponse } from '../../../core/models/staff.model';
@@ -23,20 +25,19 @@ export class StaffDashboardComponent implements OnInit {
   error: string | null = null;
 
   ngOnInit(): void {
-    this.animalsService.list().subscribe({
-      next: (animals) => this.buildStats(animals),
-      error: () => {
-        this.error = 'Could not load animals.';
-        this.loading = false;
-      }
-    });
-    this.applicationsService.list().subscribe({
-      next: (apps) => {
-        this.recentApplications = apps
+    forkJoin({
+      animals: this.animalsService.list(),
+      applications: this.applicationsService.list()
+    }).subscribe({
+      next: ({ animals, applications }) => {
+        this.buildStats(animals);
+        this.recentApplications = applications
           .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
           .slice(0, 10);
       },
-      error: () => {},
+      error: (err: HttpErrorResponse) => {
+        this.error = this.apiErrorMessage(err, 'Could not load dashboard.');
+      },
       complete: () => (this.loading = false)
     });
   }
@@ -56,5 +57,11 @@ export class StaffDashboardComponent implements OnInit {
 
   get hasStats(): boolean {
     return Object.keys(this.statsByStatus).length > 0;
+  }
+
+  private apiErrorMessage(err: HttpErrorResponse, fallback: string): string {
+    if (err.status === 401) return 'Your session has expired. Please log in again.';
+    if (err.status === 403) return 'You do not have permission to access the staff dashboard.';
+    return fallback;
   }
 }

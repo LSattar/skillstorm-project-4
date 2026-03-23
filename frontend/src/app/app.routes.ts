@@ -9,6 +9,7 @@ import { AdopterProfileComponent } from './features/adopter/profile/adopter-prof
 import { AdopterQuestionnaireComponent } from './features/adopter/questionnaire/adopter-questionnaire.component';
 import { AdopterApplicationsListComponent } from './features/adopter/applications-list/adopter-applications-list.component';
 import { AdopterApplicationDetailComponent } from './features/adopter/application-detail/adopter-application-detail.component';
+import { AdopterApplicationCreateComponent } from './features/adopter/application-create/adopter-application-create.component';
 import { StaffLayoutComponent } from './features/staff/staff-layout.component';
 import { StaffDashboardComponent } from './features/staff/dashboard/staff-dashboard.component';
 import { StaffAnimalsListComponent } from './features/staff/animals-list/staff-animals-list.component';
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: 'profile', component: AdopterProfileComponent },
       { path: 'questionnaire', component: AdopterQuestionnaireComponent },
       { path: 'applications', component: AdopterApplicationsListComponent },
+      { path: 'applications/new', component: AdopterApplicationCreateComponent },
       { path: 'applications/:id', component: AdopterApplicationDetailComponent }
     ]
   },

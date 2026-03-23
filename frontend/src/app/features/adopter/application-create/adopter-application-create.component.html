@@ -1,0 +1,24 @@
+<h2>Submit Adoption Application</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+  <label>
+    Animal ID
+    <input type="text" formControlName="animalId" />
+  </label>
+
+  <label>
+    Questionnaire Snapshot JSON (optional)
+    <textarea rows="6" formControlName="questionnaireSnapshotJson"></textarea>
+  </label>
+
+  <div class="actions">
+    <button type="submit" [disabled]="loading || form.invalid">
+      {{ loading ? 'Submitting…' : 'Submit application' }}
+    </button>
+    <a routerLink="/adopter/applications">Cancel</a>
+  </div>
+</form>

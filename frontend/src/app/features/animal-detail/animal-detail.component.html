@@ -46,5 +46,13 @@
         <p>{{ a.description }}</p>
       </section>
     }
+
+    <section class="apply-cta">
+      @if (!isLoggedIn) {
+        <a routerLink="/login" class="btn">Log in to apply</a>
+      } @else if (canApply) {
+        <a [routerLink]="['/adopter/applications/new']" [queryParams]="{ animalId: a.id }" class="btn">Apply to Adopt</a>
+      }
+    </section>
   </div>
 }

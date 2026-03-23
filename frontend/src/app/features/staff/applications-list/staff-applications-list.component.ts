@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StaffApplicationsService } from '../../../core/services/staff-applications.service';
@@ -27,8 +28,8 @@ export class StaffApplicationsListComponent implements OnInit {
         this.applications = list;
         this.applyFilters();
       },
-      error: () => {
-        this.error = 'Could not load applications.';
+      error: (err: HttpErrorResponse) => {
+        this.error = this.apiErrorMessage(err, 'Could not load applications.');
         this.loading = false;
       },
       complete: () => (this.loading = false)
@@ -43,5 +44,11 @@ export class StaffApplicationsListComponent implements OnInit {
 
   statusLabel(s: string): string {
     return s?.replace(/_/g, ' ') ?? s;
+  }
+
+  private apiErrorMessage(err: HttpErrorResponse, fallback: string): string {
+    if (err.status === 401) return 'Your session has expired. Please log in again.';
+    if (err.status === 403) return 'You do not have permission to access staff applications.';
+    return fallback;
   }
 }

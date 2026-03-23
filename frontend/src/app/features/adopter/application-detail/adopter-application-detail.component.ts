@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AdopterService } from '../../../core/services/adopter.service';
@@ -28,8 +29,8 @@ export class AdopterApplicationDetailComponent implements OnInit {
     }
     this.adopterService.getApplication(id).subscribe({
       next: (app) => (this.application = app),
-      error: () => {
-        this.error = 'Could not load application.';
+      error: (err: HttpErrorResponse) => {
+        this.error = this.apiErrorMessage(err, 'Could not load application.');
         this.loading = false;
       },
       complete: () => (this.loading = false)
@@ -38,5 +39,11 @@ export class AdopterApplicationDetailComponent implements OnInit {
 
   statusLabel(status: string): string {
     return status?.replace(/_/g, ' ') ?? status;
+  }
+
+  private apiErrorMessage(err: HttpErrorResponse, fallback: string): string {
+    if (err.status === 401) return 'Your session has expired. Please log in again.';
+    if (err.status === 403) return 'You do not have permission to view this application.';
+    return fallback;
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { StaffEmployeesService } from '../../../core/services/staff-employees.service';
 import type { UserResponse } from '../../../core/models/staff.model';
@@ -21,11 +22,17 @@ export class StaffEmployeesListComponent implements OnInit {
   ngOnInit(): void {
     this.employeesService.list().subscribe({
       next: (list) => (this.employees = list),
-      error: () => {
-        this.error = 'Could not load employees.';
+      error: (err: HttpErrorResponse) => {
+        this.error = this.apiErrorMessage(err, 'Could not load employees.');
         this.loading = false;
       },
       complete: () => (this.loading = false)
     });
+  }
+
+  private apiErrorMessage(err: HttpErrorResponse, fallback: string): string {
+    if (err.status === 401) return 'Your session has expired. Please log in again.';
+    if (err.status === 403) return 'You do not have permission to access employees.';
+    return fallback;
   }
 }

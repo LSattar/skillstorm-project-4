@@ -15,7 +15,7 @@ export interface Animal {
   currentShelterName?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-  /** For list/grid: optional primary photo URL (mock or from backend later) */
+  /** For list/grid: optional primary photo URL */
   photoUrl?: string | null;
 }
 

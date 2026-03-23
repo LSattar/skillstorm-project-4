@@ -1,3 +1,49 @@
+<section class="filters">
+  <label>
+    Species
+    <select [(ngModel)]="filterSpecies">
+      <option value="">All</option>
+      <option value="DOG">Dog</option>
+      <option value="CAT">Cat</option>
+      <option value="OTHER">Other</option>
+    </select>
+  </label>
+  <label>
+    Min age (months)
+    <input type="number" min="0" [(ngModel)]="filterAgeMin" />
+  </label>
+  <label>
+    Max age (months)
+    <input type="number" min="0" [(ngModel)]="filterAgeMax" />
+  </label>
+  <label>
+    Good with kids
+    <select [(ngModel)]="filterGoodWithKids">
+      <option value="">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label>
+  <label>
+    Good with other pets
+    <select [(ngModel)]="filterGoodWithOtherPets">
+      <option value="">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label>
+  <label>
+    Medically complex
+    <select [(ngModel)]="filterMedicallyComplex">
+      <option value="">Any</option>
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </label>
+  <button type="button" (click)="loadAnimals()">Apply filters</button>
+  <button type="button" (click)="resetFilters()">Reset</button>
+</section>
+
 @if (loading()) {
   <p class="message">Loading…</p>
 } @else if (error()) {

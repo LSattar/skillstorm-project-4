@@ -9,6 +9,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     <nav class="adopter-nav">
       <a routerLink="/adopter/profile">Profile</a>
       <a routerLink="/adopter/questionnaire">Questionnaire</a>
+      <a routerLink="/adopter/applications/new">New Application</a>
       <a routerLink="/adopter/applications">My Applications</a>
     </nav>
     <router-outlet />

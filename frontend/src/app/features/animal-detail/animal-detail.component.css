@@ -82,3 +82,7 @@
   color: var(--color-text);
   line-height: 1.5;
 }
+
+.apply-cta {
+  margin-top: 1.25rem;
+}

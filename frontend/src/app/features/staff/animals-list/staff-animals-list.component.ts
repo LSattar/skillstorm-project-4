@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StaffAnimalsService } from '../../../core/services/staff-animals.service';
@@ -28,8 +29,8 @@ export class StaffAnimalsListComponent implements OnInit {
         this.animals = list;
         this.applyFilters();
       },
-      error: () => {
-        this.error = 'Could not load animals.';
+      error: (err: HttpErrorResponse) => {
+        this.error = this.apiErrorMessage(err, 'Could not load animals.');
         this.loading = false;
       },
       complete: () => (this.loading = false)
@@ -46,5 +47,11 @@ export class StaffAnimalsListComponent implements OnInit {
 
   statusLabel(s: string): string {
     return s?.replace(/_/g, ' ') ?? s;
+  }
+
+  private apiErrorMessage(err: HttpErrorResponse, fallback: string): string {
+    if (err.status === 401) return 'Your session has expired. Please log in again.';
+    if (err.status === 403) return 'You do not have permission to access staff animals.';
+    return fallback;
   }
 }
