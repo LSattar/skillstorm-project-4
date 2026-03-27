@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
 import { AnimalDetailComponent } from './features/animal-detail/animal-detail.component';
 import { LoginComponent } from './features/login/login.component';
+import { RegisterComponent } from './features/register/register.component';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { AdopterLayoutComponent } from './features/adopter/adopter-layout.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'animals/:id', component: AnimalDetailComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
 
   {
     path: 'adopter',

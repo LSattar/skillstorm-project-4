@@ -19,6 +19,7 @@ public class AnimalResponse {
     private Long currentShelterId;
     private UUID currentFosterUserId;
     private String currentShelterName;
+    private String photoUrl;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -135,6 +136,14 @@ public class AnimalResponse {
 
     public void setCurrentShelterName(String currentShelterName) {
         this.currentShelterName = currentShelterName;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public Instant getCreatedAt() {

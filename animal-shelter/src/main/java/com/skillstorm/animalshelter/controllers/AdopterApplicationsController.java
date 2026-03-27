@@ -60,6 +60,13 @@ public class AdopterApplicationsController {
         return ResponseEntity.ok(toResponse(app));
     }
 
+    @PostMapping("/{id}/withdraw")
+    public ResponseEntity<AdoptionApplicationResponse> withdraw(Authentication authentication, @PathVariable UUID id) {
+        UUID currentUserId = currentUserId(authentication);
+        AdoptionApplication app = applicationService.withdraw(id, currentUserId);
+        return ResponseEntity.ok(toResponse(app));
+    }
+
     private AdoptionApplicationResponse toResponse(AdoptionApplication a) {
         AdoptionApplicationResponse r = new AdoptionApplicationResponse();
         r.setId(a.getId());

@@ -15,12 +15,23 @@ import type {
 export class StaffAnimalsService {
   private http = inject(HttpClient);
 
-  list(params?: { status?: string; species?: string; shelterId?: number; fosterId?: string }): Observable<AnimalResponse[]> {
+  list(params?: {
+    status?: string;
+    species?: string;
+    shelterId?: number;
+    fosterId?: string;
+    medicallyComplex?: boolean;
+    intakeDate?: string;
+    adoptionStatus?: string;
+  }): Observable<AnimalResponse[]> {
     let httpParams = new HttpParams();
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.species) httpParams = httpParams.set('species', params.species);
     if (params?.shelterId != null) httpParams = httpParams.set('shelterId', params.shelterId);
     if (params?.fosterId) httpParams = httpParams.set('fosterId', params.fosterId);
+    if (params?.medicallyComplex != null) httpParams = httpParams.set('medicallyComplex', params.medicallyComplex);
+    if (params?.intakeDate) httpParams = httpParams.set('intakeDate', params.intakeDate);
+    if (params?.adoptionStatus) httpParams = httpParams.set('adoptionStatus', params.adoptionStatus);
     return this.http.get<AnimalResponse[]>(`${apiBaseUrl}/staff/animals`, { params: httpParams });
   }
 

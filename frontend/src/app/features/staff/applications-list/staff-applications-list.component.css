@@ -1,4 +1,6 @@
-.filters { margin-bottom: 1rem; }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+.filters label { display: grid; gap: 0.25rem; }
+.filters input, .filters select { width: 100%; }
 .applications-table { width: 100%; border-collapse: collapse; }
 .applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
 .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }

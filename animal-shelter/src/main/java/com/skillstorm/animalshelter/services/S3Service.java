@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -22,6 +23,7 @@ public class S3Service {
     private final String bucketName;
     private final int presignExpirationMinutes;
     private final S3Presigner presigner;
+    private volatile boolean presigningDisabled;
 
     public S3Service(
             @Value("${app.aws.s3.bucket-name:}") String bucketName,
@@ -44,7 +46,7 @@ public class S3Service {
      * Returns null if S3 is not configured, key is blank, or generation fails.
      */
     public String generatePresignedGetUrl(String s3Key) {
-        if (presigner == null || s3Key == null || s3Key.isBlank()) {
+        if (presigner == null || presigningDisabled || s3Key == null || s3Key.isBlank()) {
             return null;
         }
         try {
@@ -59,8 +61,13 @@ public class S3Service {
             PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
             URL url = presignedRequest.url();
             return url != null ? url.toString() : null;
+        } catch (SdkClientException e) {
+            // Local/dev often has no AWS credentials; disable further attempts and fall back to stored URL.
+            presigningDisabled = true;
+            log.warn("Disabling S3 presigned URL generation for this app run (credentials unavailable): {}", e.getMessage());
+            return null;
         } catch (Exception e) {
-            log.error("Failed to generate presigned URL for s3Key={}, reason={}", s3Key, e.getMessage(), e);
+            log.error("Failed to generate presigned URL for s3Key={}, reason={}", s3Key, e.getMessage());
             return null;
         }
     }

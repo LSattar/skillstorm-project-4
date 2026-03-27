@@ -16,6 +16,12 @@
         <option value="WITHDRAWN">Withdrawn</option>
       </select>
     </label>
+    <label>Animal ID
+      <input type="text" [(ngModel)]="filterAnimalId" (ngModelChange)="applyFilters()" />
+    </label>
+    <label>Adopter Email
+      <input type="email" [(ngModel)]="filterAdopterEmail" (ngModelChange)="applyFilters()" />
+    </label>
   </div>
 
   <table class="applications-table">
@@ -33,7 +39,7 @@
         <tr>
           <td>{{ app.animalId }}</td>
           <td>{{ app.adopterUserId }}</td>
-          <td><span class="status-badge" [class]="'status-' + app.status?.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
+          <td><span class="status-badge" [class]="'status-' + app.status.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
           <td>{{ app.createdAt | date:'short' }}</td>
           <td><a [routerLink]="['/staff/applications', app.id]">Review</a></td>
         </tr>

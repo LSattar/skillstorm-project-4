@@ -38,6 +38,10 @@ export interface AdopterQuestionnaireResponse {
   userId: string;
   schemaVersion?: number | null;
   householdSize?: number | null;
+  phone?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
   housingType?: string | null;
   hasYard?: boolean | null;
   hasKids?: boolean | null;
@@ -53,6 +57,10 @@ export interface AdopterQuestionnaireResponse {
 export interface UpsertQuestionnaireRequest {
   schemaVersion?: number;
   householdSize?: number | null;
+  phone?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
   housingType?: string | null;
   hasYard?: boolean | null;
   hasKids?: boolean | null;
@@ -61,7 +69,6 @@ export interface UpsertQuestionnaireRequest {
   needsGoodWithOtherPets?: boolean | null;
   willingMedicallyComplex?: boolean | null;
   notes?: string | null;
-  phone?: string | null;
 }
 
 export interface AdoptionApplicationResponse {
@@ -78,5 +85,6 @@ export interface AdoptionApplicationResponse {
 
 export interface CreateApplicationRequest {
   animalId: string;
+  questionnaireAnswers?: UpsertQuestionnaireRequest | null;
   questionnaireSnapshotJson?: string | null;
 }

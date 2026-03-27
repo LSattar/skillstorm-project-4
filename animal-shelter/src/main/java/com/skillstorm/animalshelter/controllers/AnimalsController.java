@@ -81,9 +81,25 @@ public class AnimalsController {
         r.setCurrentShelterId(a.getCurrentShelterId());
         r.setCurrentFosterUserId(a.getCurrentFosterUserId());
         r.setCurrentShelterName(a.getCurrentShelter() != null ? a.getCurrentShelter().getName() : null);
+        r.setPhotoUrl(resolvePrimaryPhotoUrl(a.getId()));
         r.setCreatedAt(a.getCreatedAt());
         r.setUpdatedAt(a.getUpdatedAt());
         return r;
+    }
+
+    private String resolvePrimaryPhotoUrl(UUID animalId) {
+        List<AnimalPhoto> photos = animalPhotoService.findByAnimalId(animalId);
+        if (photos == null || photos.isEmpty()) {
+            return null;
+        }
+
+        AnimalPhoto preferred = photos.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsPrimary()))
+                .findFirst()
+                .orElse(photos.get(0));
+
+        String displayUrl = s3Service.generatePresignedGetUrl(preferred.getS3Key());
+        return displayUrl != null ? displayUrl : preferred.getUrl();
     }
 
     private AnimalPhotoResponse toPhotoResponse(AnimalPhoto p) {

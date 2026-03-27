@@ -87,3 +87,32 @@ VALUES
   (UUID(), '10000018-0000-4000-8000-000000000018', 'INTAKE', 1, NOW()),
   (UUID(), '10000019-0000-4000-8000-000000000019', 'INTAKE', 1, NOW()),
   (UUID(), '10000020-0000-4000-8000-000000000020', 'INTAKE', 1, NOW());
+
+-- ---------------------------------------------------------------------------
+-- 6) Animal photos (metadata for S3 objects)
+--    Bucket: ljs-animal-shelter-photos (see application.yml / project-requirements).
+--    Upload objects to keys animals/<animal_id>/primary.jpg before browsing photos.
+--    INSERT IGNORE allows re-running this file without duplicate s3_key errors.
+-- ---------------------------------------------------------------------------
+INSERT IGNORE INTO animal_photos (id, animal_id, s3_key, url, is_primary, content_type)
+VALUES
+(UUID(), '10000001-0000-4000-8000-000000000001', 'animals/10000001-0000-4000-8000-000000000001/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000001-0000-4000-8000-000000000001/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000002-0000-4000-8000-000000000002', 'animals/10000002-0000-4000-8000-000000000002/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000002-0000-4000-8000-000000000002/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000003-0000-4000-8000-000000000003', 'animals/10000003-0000-4000-8000-000000000003/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000003-0000-4000-8000-000000000003/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000004-0000-4000-8000-000000000004', 'animals/10000004-0000-4000-8000-000000000004/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000004-0000-4000-8000-000000000004/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000005-0000-4000-8000-000000000005', 'animals/10000005-0000-4000-8000-000000000005/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000005-0000-4000-8000-000000000005/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000006-0000-4000-8000-000000000006', 'animals/10000006-0000-4000-8000-000000000006/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000006-0000-4000-8000-000000000006/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000007-0000-4000-8000-000000000007', 'animals/10000007-0000-4000-8000-000000000007/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000007-0000-4000-8000-000000000007/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000008-0000-4000-8000-000000000008', 'animals/10000008-0000-4000-8000-000000000008/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000008-0000-4000-8000-000000000008/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000009-0000-4000-8000-000000000009', 'animals/10000009-0000-4000-8000-000000000009/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000009-0000-4000-8000-000000000009/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000010-0000-4000-8000-000000000010', 'animals/10000010-0000-4000-8000-000000000010/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000010-0000-4000-8000-000000000010/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000011-0000-4000-8000-000000000011', 'animals/10000011-0000-4000-8000-000000000011/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000011-0000-4000-8000-000000000011/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000012-0000-4000-8000-000000000012', 'animals/10000012-0000-4000-8000-000000000012/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000012-0000-4000-8000-000000000012/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000013-0000-4000-8000-000000000013', 'animals/10000013-0000-4000-8000-000000000013/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000013-0000-4000-8000-000000000013/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000014-0000-4000-8000-000000000014', 'animals/10000014-0000-4000-8000-000000000014/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000014-0000-4000-8000-000000000014/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000015-0000-4000-8000-000000000015', 'animals/10000015-0000-4000-8000-000000000015/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000015-0000-4000-8000-000000000015/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000016-0000-4000-8000-000000000016', 'animals/10000016-0000-4000-8000-000000000016/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000016-0000-4000-8000-000000000016/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000017-0000-4000-8000-000000000017', 'animals/10000017-0000-4000-8000-000000000017/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000017-0000-4000-8000-000000000017/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000018-0000-4000-8000-000000000018', 'animals/10000018-0000-4000-8000-000000000018/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000018-0000-4000-8000-000000000018/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000019-0000-4000-8000-000000000019', 'animals/10000019-0000-4000-8000-000000000019/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000019-0000-4000-8000-000000000019/primary.jpg', 1, 'image/jpeg'),
+(UUID(), '10000020-0000-4000-8000-000000000020', 'animals/10000020-0000-4000-8000-000000000020/primary.jpg', 'https://ljs-animal-shelter-photos.s3.us-east-1.amazonaws.com/animals/10000020-0000-4000-8000-000000000020/primary.jpg', 1, 'image/jpeg');

@@ -16,32 +16,46 @@ import type { AnimalResponse } from '../../../core/models/staff.model';
 export class StaffAnimalsListComponent implements OnInit {
   private animalsService = inject(StaffAnimalsService);
 
-  animals: AnimalResponse[] = [];
   filtered: AnimalResponse[] = [];
   loading = true;
   error: string | null = null;
   filterStatus = '';
   filterSpecies = '';
+  filterShelterId = '';
+  filterFosterId = '';
+  filterMedicallyComplex = '';
+  filterIntakeDate = '';
+  filterAdoptionStatus = '';
 
   ngOnInit(): void {
-    this.animalsService.list().subscribe({
+    this.load();
+  }
+
+  applyFilters(): void {
+    this.load();
+  }
+
+  private load(): void {
+    this.loading = true;
+    this.error = null;
+    this.animalsService.list({
+      status: this.filterStatus || undefined,
+      species: this.filterSpecies || undefined,
+      shelterId: this.filterShelterId ? Number(this.filterShelterId) : undefined,
+      fosterId: this.filterFosterId || undefined,
+      medicallyComplex:
+        this.filterMedicallyComplex === '' ? undefined : this.filterMedicallyComplex === 'true',
+      intakeDate: this.filterIntakeDate || undefined,
+      adoptionStatus: this.filterAdoptionStatus || undefined
+    }).subscribe({
       next: (list) => {
-        this.animals = list;
-        this.applyFilters();
+        this.filtered = list;
       },
       error: (err: HttpErrorResponse) => {
         this.error = this.apiErrorMessage(err, 'Could not load animals.');
         this.loading = false;
       },
       complete: () => (this.loading = false)
-    });
-  }
-
-  applyFilters(): void {
-    this.filtered = this.animals.filter((a) => {
-      if (this.filterStatus && a.status !== this.filterStatus) return false;
-      if (this.filterSpecies && a.species !== this.filterSpecies) return false;
-      return true;
     });
   }
 

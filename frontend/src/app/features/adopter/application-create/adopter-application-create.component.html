@@ -10,9 +10,54 @@
     <input type="text" formControlName="animalId" />
   </label>
 
+  <h3>Optional questionnaire answers</h3>
+
   <label>
-    Questionnaire Snapshot JSON (optional)
-    <textarea rows="6" formControlName="questionnaireSnapshotJson"></textarea>
+    Household size
+    <input type="number" formControlName="questionnaireHouseholdSize" min="0" />
+  </label>
+
+  <label>
+    Phone
+    <input type="text" formControlName="questionnairePhone" />
+  </label>
+
+  <label>
+    City
+    <input type="text" formControlName="questionnaireCity" />
+  </label>
+
+  <label>
+    State
+    <input type="text" formControlName="questionnaireState" />
+  </label>
+
+  <label>
+    ZIP
+    <input type="text" formControlName="questionnaireZip" />
+  </label>
+
+  <label>
+    Housing type
+    <select formControlName="questionnaireHousingType">
+      <option value="">—</option>
+      <option value="HOUSE">HOUSE</option>
+      <option value="APARTMENT">APARTMENT</option>
+      <option value="CONDO">CONDO</option>
+      <option value="OTHER">OTHER</option>
+    </select>
+  </label>
+
+  <label><input type="checkbox" formControlName="questionnaireHasYard" /> Has yard</label>
+  <label><input type="checkbox" formControlName="questionnaireHasKids" /> Has kids</label>
+  <label><input type="checkbox" formControlName="questionnaireHasOtherPets" /> Has other pets</label>
+  <label><input type="checkbox" formControlName="questionnaireNeedsGoodWithKids" /> Needs good with kids</label>
+  <label><input type="checkbox" formControlName="questionnaireNeedsGoodWithOtherPets" /> Needs good with other pets</label>
+  <label><input type="checkbox" formControlName="questionnaireWillingMedicallyComplex" /> Willing medically complex</label>
+
+  <label>
+    Notes
+    <textarea rows="4" formControlName="questionnaireNotes"></textarea>
   </label>
 
   <div class="actions">

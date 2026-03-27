@@ -22,7 +22,19 @@ export class AdopterApplicationCreateComponent implements OnInit {
 
   form = this.fb.group({
     animalId: ['', Validators.required],
-    questionnaireSnapshotJson: ['']
+    questionnaireHouseholdSize: [null as number | null],
+    questionnairePhone: [''],
+    questionnaireCity: [''],
+    questionnaireState: [''],
+    questionnaireZip: [''],
+    questionnaireHousingType: [''],
+    questionnaireHasYard: [false],
+    questionnaireHasKids: [false],
+    questionnaireHasOtherPets: [false],
+    questionnaireNeedsGoodWithKids: [false],
+    questionnaireNeedsGoodWithOtherPets: [false],
+    questionnaireWillingMedicallyComplex: [false],
+    questionnaireNotes: ['']
   });
 
   ngOnInit(): void {
@@ -39,10 +51,42 @@ export class AdopterApplicationCreateComponent implements OnInit {
     this.submitted = false;
 
     const value = this.form.getRawValue();
+    const hasQuestionnaire =
+      value.questionnaireHouseholdSize != null ||
+      !!value.questionnairePhone ||
+      !!value.questionnaireCity ||
+      !!value.questionnaireState ||
+      !!value.questionnaireZip ||
+      !!value.questionnaireHousingType ||
+      !!value.questionnaireNotes ||
+      value.questionnaireHasYard ||
+      value.questionnaireHasKids ||
+      value.questionnaireHasOtherPets ||
+      value.questionnaireNeedsGoodWithKids ||
+      value.questionnaireNeedsGoodWithOtherPets ||
+      value.questionnaireWillingMedicallyComplex;
+
     this.adopterService
       .createApplication({
         animalId: value.animalId ?? '',
-        questionnaireSnapshotJson: value.questionnaireSnapshotJson?.trim() || null
+        questionnaireAnswers: hasQuestionnaire
+          ? {
+              schemaVersion: 1,
+              householdSize: value.questionnaireHouseholdSize ?? null,
+              phone: value.questionnairePhone?.trim() || null,
+              city: value.questionnaireCity?.trim() || null,
+              state: value.questionnaireState?.trim() || null,
+              zip: value.questionnaireZip?.trim() || null,
+              housingType: value.questionnaireHousingType?.trim() || null,
+              hasYard: value.questionnaireHasYard ?? null,
+              hasKids: value.questionnaireHasKids ?? null,
+              hasOtherPets: value.questionnaireHasOtherPets ?? null,
+              needsGoodWithKids: value.questionnaireNeedsGoodWithKids ?? null,
+              needsGoodWithOtherPets: value.questionnaireNeedsGoodWithOtherPets ?? null,
+              willingMedicallyComplex: value.questionnaireWillingMedicallyComplex ?? null,
+              notes: value.questionnaireNotes?.trim() || null
+            }
+          : null
       })
       .subscribe({
         next: (app) => {

@@ -21,7 +21,7 @@
       @for (app of applications; track app.id) {
         <tr>
           <td>{{ app.animalId }}</td>
-          <td><span class="status-badge" [class]="'status-' + app.status?.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
+          <td><span class="status-badge" [class]="'status-' + app.status.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
           <td>{{ app.createdAt | date:'short' }}</td>
           <td><a [routerLink]="['/adopter/applications', app.id]">View</a></td>
         </tr>

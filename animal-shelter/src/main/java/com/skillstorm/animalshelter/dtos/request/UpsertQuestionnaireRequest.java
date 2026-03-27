@@ -23,6 +23,15 @@ public class UpsertQuestionnaireRequest {
     @Size(max = 50)
     private String phone;
 
+    @Size(max = 100)
+    private String city;
+
+    @Size(max = 50)
+    private String state;
+
+    @Size(max = 20)
+    private String zip;
+
     public UpsertQuestionnaireRequest() {
     }
 
@@ -112,5 +121,29 @@ public class UpsertQuestionnaireRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
+    public void setZip(String zip) {
+        this.zip = zip;
     }
 }

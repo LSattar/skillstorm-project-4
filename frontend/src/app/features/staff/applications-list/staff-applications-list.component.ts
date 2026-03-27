@@ -16,17 +16,27 @@ import type { AdoptionApplicationResponse } from '../../../core/models/adopter.m
 export class StaffApplicationsListComponent implements OnInit {
   private applicationsService = inject(StaffApplicationsService);
 
-  applications: AdoptionApplicationResponse[] = [];
   filtered: AdoptionApplicationResponse[] = [];
   loading = true;
   error: string | null = null;
   filterStatus = '';
+  filterAnimalId = '';
+  filterAdopterEmail = '';
 
   ngOnInit(): void {
-    this.applicationsService.list().subscribe({
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    this.loading = true;
+    this.error = null;
+    this.applicationsService.list({
+      status: this.filterStatus || undefined,
+      animalId: this.filterAnimalId || undefined,
+      adopterEmail: this.filterAdopterEmail || undefined
+    }).subscribe({
       next: (list) => {
-        this.applications = list;
-        this.applyFilters();
+        this.filtered = list;
       },
       error: (err: HttpErrorResponse) => {
         this.error = this.apiErrorMessage(err, 'Could not load applications.');
@@ -34,12 +44,6 @@ export class StaffApplicationsListComponent implements OnInit {
       },
       complete: () => (this.loading = false)
     });
-  }
-
-  applyFilters(): void {
-    this.filtered = this.filterStatus
-      ? this.applications.filter((a) => a.status === this.filterStatus)
-      : [...this.applications];
   }
 
   statusLabel(s: string): string {

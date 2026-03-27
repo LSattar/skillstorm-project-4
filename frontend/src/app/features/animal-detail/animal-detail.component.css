@@ -33,6 +33,15 @@
   font-size: 1.75rem;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 50%, white);
+  font-size: 0.85rem;
+}
+
 .photos-section {
   margin-bottom: 1.5rem;
   border-radius: 8px;

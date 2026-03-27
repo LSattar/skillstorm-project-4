@@ -10,7 +10,7 @@
     <dt>Animal ID</dt>
     <dd><a [routerLink]="['/animals', application.animalId]">{{ application.animalId }}</a></dd>
     <dt>Status</dt>
-    <dd><span class="status-badge" [class]="'status-' + application.status?.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
+    <dd><span class="status-badge" [class]="'status-' + application.status.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
     <dt>Submitted</dt>
     <dd>{{ application.createdAt | date:'medium' }}</dd>
     @if (application.updatedAt) {

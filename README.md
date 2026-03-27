@@ -50,6 +50,14 @@ source database/schema.sql;
 
 This creates all required tables and seeds `ADOPTER`, `STAFF`, and `FOSTER` roles.
 
+Optional sample data (shelter, foster users, animals, events, and `animal_photos` rows pointing at S3 keys under `ljs-animal-shelter-photos`):
+
+```sql
+source database/seed-data.sql;
+```
+
+Photos only work if matching objects exist in S3 at the seeded keys (`animals/<animal_id>/primary.jpg`), or the API will still return rows but images may 404 until uploaded.
+
 ## Running Locally
 
 ### Backend

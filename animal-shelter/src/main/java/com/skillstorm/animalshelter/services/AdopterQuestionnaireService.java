@@ -80,12 +80,12 @@ public class AdopterQuestionnaireService {
         if (req.getNotes() != null) q.setNotes(req.getNotes());
         q.setUpdatedAt(Instant.now());
         q = questionnaireRepository.save(q);
-        syncToAdopterProfile(userId, q);
+        syncToAdopterProfile(userId, q, req);
         log.info("Upserted adopter questionnaire for user id={}", userId);
         return q;
     }
 
-    private void syncToAdopterProfile(UUID userId, AdopterQuestionnaire q) {
+    private void syncToAdopterProfile(UUID userId, AdopterQuestionnaire q, UpsertQuestionnaireRequest req) {
         AdopterProfile profile = adopterProfileRepository.findById(userId).orElseGet(() -> {
             AdopterProfile p = new AdopterProfile();
             p.setUserId(userId);
@@ -100,6 +100,52 @@ public class AdopterQuestionnaireService {
         profile.setNeedsGoodWithOtherPets(q.getNeedsGoodWithOtherPets());
         profile.setWillingMedicallyComplex(q.getWillingMedicallyComplex());
         profile.setNotes(q.getNotes());
+        if (req.getCity() != null) profile.setCity(req.getCity());
+        if (req.getState() != null) profile.setState(req.getState());
+        if (req.getZip() != null) profile.setZip(req.getZip());
         adopterProfileRepository.save(profile);
+    }
+
+    /**
+     * Full questionnaire v1 snapshot for {@code questionnaire_snapshot_json}, including phone and address from user/profile.
+     */
+    @Transactional(readOnly = true)
+    public String buildQuestionnaireSnapshotJson(UUID userId) {
+        AdopterQuestionnaire q = questionnaireRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Complete your questionnaire before applying for adoption"));
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.error("User missing for questionnaire snapshot userId={}", userId);
+            return new ResourceNotFoundException("User not found: " + userId);
+        });
+        AdopterProfile profile = adopterProfileRepository.findById(userId).orElse(null);
+        return "{"
+                + "\"schemaVersion\":" + toJsonNumber(q.getSchemaVersion()) + ","
+                + "\"householdSize\":" + toJsonNumber(q.getHouseholdSize()) + ","
+                + "\"phone\":" + toJsonString(user.getPhone()) + ","
+                + "\"city\":" + toJsonString(profile != null ? profile.getCity() : null) + ","
+                + "\"state\":" + toJsonString(profile != null ? profile.getState() : null) + ","
+                + "\"zip\":" + toJsonString(profile != null ? profile.getZip() : null) + ","
+                + "\"housingType\":" + toJsonString(q.getHousingType()) + ","
+                + "\"hasYard\":" + toJsonBoolean(q.getHasYard()) + ","
+                + "\"hasKids\":" + toJsonBoolean(q.getHasKids()) + ","
+                + "\"hasOtherPets\":" + toJsonBoolean(q.getHasOtherPets()) + ","
+                + "\"needsGoodWithKids\":" + toJsonBoolean(q.getNeedsGoodWithKids()) + ","
+                + "\"needsGoodWithOtherPets\":" + toJsonBoolean(q.getNeedsGoodWithOtherPets()) + ","
+                + "\"willingMedicallyComplex\":" + toJsonBoolean(q.getWillingMedicallyComplex()) + ","
+                + "\"notes\":" + toJsonString(q.getNotes())
+                + "}";
+    }
+
+    private String toJsonString(String value) {
+        if (value == null) return "null";
+        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+    }
+
+    private String toJsonNumber(Number value) {
+        return value == null ? "null" : String.valueOf(value);
+    }
+
+    private String toJsonBoolean(Boolean value) {
+        return value == null ? "null" : String.valueOf(value);
     }
 }

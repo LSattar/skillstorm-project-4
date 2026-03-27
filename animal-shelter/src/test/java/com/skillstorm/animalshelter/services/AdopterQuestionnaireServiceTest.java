@@ -56,6 +56,9 @@ class AdopterQuestionnaireServiceTest {
         request.setWillingMedicallyComplex(true);
         request.setNotes("prefers medium dogs");
         request.setPhone("5551234567");
+        request.setCity("Austin");
+        request.setState("TX");
+        request.setZip("78701");
     }
 
     @Test

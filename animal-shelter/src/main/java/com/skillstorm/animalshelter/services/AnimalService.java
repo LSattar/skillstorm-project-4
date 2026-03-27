@@ -1,10 +1,14 @@
 package com.skillstorm.animalshelter.services;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -16,6 +20,7 @@ import com.skillstorm.animalshelter.dtos.request.CreateAnimalRequest;
 import com.skillstorm.animalshelter.dtos.request.UpdateAnimalRequest;
 import com.skillstorm.animalshelter.exceptions.ResourceNotFoundException;
 import com.skillstorm.animalshelter.models.Animal;
+import com.skillstorm.animalshelter.repositories.AdoptionApplicationRepository;
 import com.skillstorm.animalshelter.repositories.AnimalRepository;
 
 @Service
@@ -23,13 +28,18 @@ public class AnimalService {
 
     private static final Logger log = LoggerFactory.getLogger(AnimalService.class);
     private static final List<String> AVAILABLE_STATUSES = Arrays.asList("IN_SHELTER", "IN_FOSTER");
+    private static final ZoneId INTAKE_ZONE = ZoneId.of("UTC");
 
     private final AnimalRepository animalRepository;
     private final AnimalEventService animalEventService;
+    private final AdoptionApplicationRepository adoptionApplicationRepository;
 
-    public AnimalService(AnimalRepository animalRepository, AnimalEventService animalEventService) {
+    public AnimalService(AnimalRepository animalRepository,
+                         AnimalEventService animalEventService,
+                         AdoptionApplicationRepository adoptionApplicationRepository) {
         this.animalRepository = animalRepository;
         this.animalEventService = animalEventService;
+        this.adoptionApplicationRepository = adoptionApplicationRepository;
     }
 
     @Transactional
@@ -84,27 +94,39 @@ public class AnimalService {
     }
 
     @Transactional(readOnly = true)
-    public List<Animal> findAllStaff(String status, String species, Long shelterId, UUID fosterId) {
+    public List<Animal> findAllStaff(String status, String species, Long shelterId, UUID fosterId,
+                                       Boolean medicallyComplex, LocalDate intakeDate, String adoptionStatus) {
+        List<Animal> list = new ArrayList<>(animalRepository.findAll());
         if (status != null && !status.isBlank()) {
-            return animalRepository.findByStatusIn(List.of(status));
-        }
-        if (shelterId != null) {
-            return animalRepository.findByCurrentShelterId(shelterId);
-        }
-        if (fosterId != null) {
-            return animalRepository.findByCurrentFosterUserId(fosterId);
+            list.removeIf(a -> !status.equals(a.getStatus()));
         }
         if (species != null && !species.isBlank()) {
-            List<Animal> all = new ArrayList<>(animalRepository.findAll());
-            all.removeIf(a -> !species.equalsIgnoreCase(a.getSpecies()));
-            return all;
+            list.removeIf(a -> a.getSpecies() == null || !species.equalsIgnoreCase(a.getSpecies()));
         }
-        return animalRepository.findAll();
+        if (shelterId != null) {
+            list.removeIf(a -> !shelterId.equals(a.getCurrentShelterId()));
+        }
+        if (fosterId != null) {
+            list.removeIf(a -> !fosterId.equals(a.getCurrentFosterUserId()));
+        }
+        if (medicallyComplex != null) {
+            list.removeIf(a -> !medicallyComplex.equals(Boolean.TRUE.equals(a.getMedicallyComplex())));
+        }
+        if (intakeDate != null) {
+            list.removeIf(a -> a.getCreatedAt() == null
+                    || !intakeDate.equals(a.getCreatedAt().atZone(INTAKE_ZONE).toLocalDate()));
+        }
+        if (adoptionStatus != null && !adoptionStatus.isBlank()) {
+            Set<UUID> animalIds = new HashSet<>(adoptionApplicationRepository.findDistinctAnimalIdsByStatus(adoptionStatus.trim()));
+            list.removeIf(a -> !animalIds.contains(a.getId()));
+        }
+        return list;
     }
 
     @Transactional
-    public Animal update(UUID id, UpdateAnimalRequest req) {
+    public Animal update(UUID id, UpdateAnimalRequest req, UUID performedByUserId) {
         Animal animal = findByIdOrThrow(id);
+        String previousStatus = animal.getStatus();
         if (req.getName() != null) animal.setName(req.getName());
         if (req.getSpecies() != null) animal.setSpecies(req.getSpecies());
         if (req.getBreed() != null) animal.setBreed(req.getBreed());
@@ -119,18 +141,27 @@ public class AnimalService {
         if (req.getCurrentFosterUserId() != null) animal.setCurrentFosterUserId(req.getCurrentFosterUserId());
         animal.setUpdatedAt(Instant.now());
         animal = animalRepository.save(animal);
+        if (req.getStatus() != null && !req.getStatus().equals(previousStatus)) {
+            animalEventService.recordEvent(id, "STATUS_CHANGE", null, null, null, null, performedByUserId,
+                    "Status updated via animal edit", Instant.now());
+        }
         log.info("Updated animal id={}", id);
         return animal;
     }
 
     @Transactional
-    public void softDelete(UUID id) {
+    public void softDelete(UUID id, UUID performedByUserId) {
         Animal animal = findByIdOrThrow(id);
+        String previousStatus = animal.getStatus();
         animal.setStatus("INACTIVE");
         animal.setCurrentShelterId(null);
         animal.setCurrentFosterUserId(null);
         animal.setUpdatedAt(Instant.now());
         animalRepository.save(animal);
+        if (!"INACTIVE".equals(previousStatus)) {
+            animalEventService.recordEvent(id, "STATUS_CHANGE", null, null, null, null, performedByUserId,
+                    "Soft delete: INACTIVE", Instant.now());
+        }
         log.info("Soft deleted animal id={}, status set to INACTIVE", id);
     }
 

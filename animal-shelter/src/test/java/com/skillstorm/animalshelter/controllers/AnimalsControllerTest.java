@@ -64,11 +64,20 @@ class AnimalsControllerTest {
         @DisplayName("returns 200 and list of animals")
         void returns200AndListOfAnimals() {
             Animal animal = new Animal();
-            animal.setId(UUID.randomUUID());
+            UUID animalId = UUID.randomUUID();
+            animal.setId(animalId);
             animal.setName("Buddy");
             animal.setSpecies("DOG");
             animal.setStatus("IN_SHELTER");
             when(animalService.findAvailableForAdoption(any(), any(), any(), any(), any(), any())).thenReturn(List.of(animal));
+            AnimalPhoto photo = new AnimalPhoto();
+            photo.setId(UUID.randomUUID());
+            photo.setAnimalId(animalId);
+            photo.setIsPrimary(true);
+            photo.setS3Key("animals/buddy.jpg");
+            photo.setUrl("https://fallback.example.com/buddy.jpg");
+            when(animalPhotoService.findByAnimalId(animalId)).thenReturn(List.of(photo));
+            when(s3Service.generatePresignedGetUrl("animals/buddy.jpg")).thenReturn("https://s3-presigned.example.com/buddy");
 
             ResponseEntity<List<com.skillstorm.animalshelter.dtos.response.AnimalResponse>> result =
                     controller.listAvailable(null, null, null, null, null, null);
@@ -77,6 +86,7 @@ class AnimalsControllerTest {
             assertThat(result.getBody()).hasSize(1);
             assertThat(result.getBody().get(0).getName()).isEqualTo("Buddy");
             assertThat(result.getBody().get(0).getSpecies()).isEqualTo("DOG");
+            assertThat(result.getBody().get(0).getPhotoUrl()).isEqualTo("https://s3-presigned.example.com/buddy");
         }
     }
 
@@ -94,12 +104,21 @@ class AnimalsControllerTest {
             animal.setSpecies("DOG");
             animal.setStatus("IN_SHELTER");
             when(animalService.findByIdOrThrow(id)).thenReturn(animal);
+            AnimalPhoto photo = new AnimalPhoto();
+            photo.setId(UUID.randomUUID());
+            photo.setAnimalId(id);
+            photo.setIsPrimary(true);
+            photo.setS3Key("animals/buddy-detail.jpg");
+            photo.setUrl("https://fallback.example.com/buddy-detail.jpg");
+            when(animalPhotoService.findByAnimalId(id)).thenReturn(List.of(photo));
+            when(s3Service.generatePresignedGetUrl("animals/buddy-detail.jpg")).thenReturn(null);
 
             ResponseEntity<com.skillstorm.animalshelter.dtos.response.AnimalResponse> result = controller.getById(id);
 
             assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(result.getBody()).isNotNull();
             assertThat(result.getBody().getName()).isEqualTo("Buddy");
+            assertThat(result.getBody().getPhotoUrl()).isEqualTo("https://fallback.example.com/buddy-detail.jpg");
         }
 
         @Test

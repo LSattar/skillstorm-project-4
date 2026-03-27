@@ -8,6 +8,7 @@
     <a routerLink="/" class="back-link">← Back to all animals</a>
 
     <h1>{{ a.name }}</h1>
+    <p><span class="status-badge">{{ a.status }}</span></p>
 
     <div class="photos-section">
       @if (primaryPhoto(); as photo) {

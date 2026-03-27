@@ -29,15 +29,18 @@ public class AdoptionApplicationService {
     private final AnimalRepository animalRepository;
     private final UserRepository userRepository;
     private final AnimalEventService animalEventService;
+    private final AdopterQuestionnaireService adopterQuestionnaireService;
 
     public AdoptionApplicationService(AdoptionApplicationRepository applicationRepository,
                                       AnimalRepository animalRepository,
                                       UserRepository userRepository,
-                                      AnimalEventService animalEventService) {
+                                      AnimalEventService animalEventService,
+                                      AdopterQuestionnaireService adopterQuestionnaireService) {
         this.applicationRepository = applicationRepository;
         this.animalRepository = animalRepository;
         this.userRepository = userRepository;
         this.animalEventService = animalEventService;
+        this.adopterQuestionnaireService = adopterQuestionnaireService;
     }
 
     @Transactional
@@ -61,12 +64,23 @@ public class AdoptionApplicationService {
             log.error("Duplicate application: adopter id={}, animal id={}", adopterUserId, req.getAnimalId());
             throw new ConflictException("An active application already exists for this animal");
         }
+
+        String snapshotJson;
+        if (req.getQuestionnaireAnswers() != null) {
+            adopterQuestionnaireService.upsert(adopterUserId, req.getQuestionnaireAnswers());
+            snapshotJson = adopterQuestionnaireService.buildQuestionnaireSnapshotJson(adopterUserId);
+        } else if (req.getQuestionnaireSnapshotJson() != null && !req.getQuestionnaireSnapshotJson().isBlank()) {
+            snapshotJson = req.getQuestionnaireSnapshotJson();
+        } else {
+            snapshotJson = adopterQuestionnaireService.buildQuestionnaireSnapshotJson(adopterUserId);
+        }
+
         AdoptionApplication app = new AdoptionApplication();
         app.setId(UUID.randomUUID());
         app.setAnimalId(req.getAnimalId());
         app.setAdopterUserId(adopterUserId);
         app.setStatus("SUBMITTED");
-        app.setQuestionnaireSnapshotJson(req.getQuestionnaireSnapshotJson());
+        app.setQuestionnaireSnapshotJson(snapshotJson);
         Instant now = Instant.now();
         app.setCreatedAt(now);
         app.setUpdatedAt(now);
@@ -113,6 +127,16 @@ public class AdoptionApplicationService {
         app.setDecisionNotes(decisionNotes);
         app.setUpdatedAt(Instant.now());
         app = applicationRepository.save(app);
+        UUID animalId = app.getAnimalId();
+
+        Animal animal = animalRepository.findById(animalId).orElseThrow(() -> {
+            log.error("Animal missing on approve, id={}", animalId);
+            return new ResourceNotFoundException("Animal not found: " + animalId);
+        });
+        animal.setStatus("ADOPTION_PENDING");
+        animal.setUpdatedAt(Instant.now());
+        animalRepository.save(animal);
+
         animalEventService.recordEvent(app.getAnimalId(), "APPLICATION_APPROVED", null, null, null, null, staffUserId, decisionNotes, Instant.now());
         log.info("Application id={} approved by user id={}", applicationId, staffUserId);
         return app;
@@ -121,6 +145,22 @@ public class AdoptionApplicationService {
     @Transactional
     public AdoptionApplication deny(UUID applicationId, UUID staffUserId, String decisionNotes) {
         AdoptionApplication app = findByIdOrThrow(applicationId);
+        UUID animalId = app.getAnimalId();
+
+        Animal animal = animalRepository.findById(animalId).orElseThrow(() -> {
+            log.error("Animal missing on deny, id={}", animalId);
+            return new ResourceNotFoundException("Animal not found: " + animalId);
+        });
+        if ("ADOPTION_PENDING".equals(animal.getStatus())) {
+            if (animal.getCurrentFosterUserId() != null) {
+                animal.setStatus("IN_FOSTER");
+            } else {
+                animal.setStatus("IN_SHELTER");
+            }
+            animal.setUpdatedAt(Instant.now());
+            animalRepository.save(animal);
+        }
+
         app.setStatus("DENIED");
         app.setStaffReviewerUserId(staffUserId);
         app.setDecisionNotes(decisionNotes);
@@ -128,6 +168,23 @@ public class AdoptionApplicationService {
         app = applicationRepository.save(app);
         animalEventService.recordEvent(app.getAnimalId(), "APPLICATION_DENIED", null, null, null, null, staffUserId, decisionNotes, Instant.now());
         log.info("Application id={} denied by user id={}", applicationId, staffUserId);
+        return app;
+    }
+
+    @Transactional
+    public AdoptionApplication withdraw(UUID applicationId, UUID adopterUserId) {
+        AdoptionApplication app = findByIdOrThrow(applicationId);
+        if (!adopterUserId.equals(app.getAdopterUserId())) {
+            log.error("Withdraw forbidden: app id={} not owned by user id={}", applicationId, adopterUserId);
+            throw new ResourceNotFoundException("Application not found: " + applicationId);
+        }
+        if (!"SUBMITTED".equals(app.getStatus()) && !"IN_REVIEW".equals(app.getStatus())) {
+            throw new ConflictException("Application cannot be withdrawn in its current state");
+        }
+        app.setStatus("WITHDRAWN");
+        app.setUpdatedAt(Instant.now());
+        app = applicationRepository.save(app);
+        log.info("Application id={} withdrawn by user id={}", applicationId, adopterUserId);
         return app;
     }
 }

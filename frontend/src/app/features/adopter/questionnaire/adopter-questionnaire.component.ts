@@ -35,7 +35,10 @@ export class AdopterQuestionnaireComponent implements OnInit {
       needsGoodWithOtherPets: [false],
       willingMedicallyComplex: [false],
       notes: [''],
-      phone: ['']
+      phone: [''],
+      city: [''],
+      state: [''],
+      zip: ['']
     });
     this.adopterService.getQuestionnaire().subscribe({
       next: (q) => this.patchForm(q),
@@ -58,7 +61,11 @@ export class AdopterQuestionnaireComponent implements OnInit {
       needsGoodWithKids: q.needsGoodWithKids ?? false,
       needsGoodWithOtherPets: q.needsGoodWithOtherPets ?? false,
       willingMedicallyComplex: q.willingMedicallyComplex ?? false,
-      notes: q.notes ?? ''
+      notes: q.notes ?? '',
+      phone: q.phone ?? '',
+      city: q.city ?? '',
+      state: q.state ?? '',
+      zip: q.zip ?? ''
     });
   }
 

@@ -1,11 +1,13 @@
 package com.skillstorm.animalshelter.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -57,8 +59,11 @@ public class StaffAnimalsController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String species,
             @RequestParam(required = false) Long shelterId,
-            @RequestParam(required = false) UUID fosterId) {
-        List<Animal> list = animalService.findAllStaff(status, species, shelterId, fosterId);
+            @RequestParam(required = false) UUID fosterId,
+            @RequestParam(required = false) Boolean medicallyComplex,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate intakeDate,
+            @RequestParam(required = false) String adoptionStatus) {
+        List<Animal> list = animalService.findAllStaff(status, species, shelterId, fosterId, medicallyComplex, intakeDate, adoptionStatus);
         return ResponseEntity.ok(list.stream().map(this::toResponse).collect(Collectors.toList()));
     }
 
@@ -75,14 +80,16 @@ public class StaffAnimalsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AnimalResponse> update(@PathVariable UUID id, @Valid @RequestBody UpdateAnimalRequest req) {
-        Animal animal = animalService.update(id, req);
+    public ResponseEntity<AnimalResponse> update(@PathVariable UUID id, Authentication authentication, @Valid @RequestBody UpdateAnimalRequest req) {
+        UUID staffUserId = currentUserId(authentication);
+        Animal animal = animalService.update(id, req, staffUserId);
         return ResponseEntity.ok(toResponse(animal));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        animalService.softDelete(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id, Authentication authentication) {
+        UUID staffUserId = currentUserId(authentication);
+        animalService.softDelete(id, staffUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -136,9 +143,25 @@ public class StaffAnimalsController {
         r.setCurrentShelterId(a.getCurrentShelterId());
         r.setCurrentFosterUserId(a.getCurrentFosterUserId());
         r.setCurrentShelterName(a.getCurrentShelter() != null ? a.getCurrentShelter().getName() : null);
+        r.setPhotoUrl(resolvePrimaryPhotoUrl(a.getId()));
         r.setCreatedAt(a.getCreatedAt());
         r.setUpdatedAt(a.getUpdatedAt());
         return r;
+    }
+
+    private String resolvePrimaryPhotoUrl(UUID animalId) {
+        List<AnimalPhoto> photos = animalPhotoService.findByAnimalId(animalId);
+        if (photos == null || photos.isEmpty()) {
+            return null;
+        }
+
+        AnimalPhoto preferred = photos.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsPrimary()))
+                .findFirst()
+                .orElse(photos.get(0));
+
+        String displayUrl = s3Service.generatePresignedGetUrl(preferred.getS3Key());
+        return displayUrl != null ? displayUrl : preferred.getUrl();
     }
 
     private AnimalPhotoResponse toPhotoResponse(AnimalPhoto p) {

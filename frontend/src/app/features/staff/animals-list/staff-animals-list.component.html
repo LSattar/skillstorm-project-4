@@ -23,6 +23,32 @@
       <option value="CAT">Cat</option>
       <option value="OTHER">Other</option>
     </select></label>
+    <label>Shelter ID
+      <input type="number" [(ngModel)]="filterShelterId" (ngModelChange)="applyFilters()" />
+    </label>
+    <label>Foster User ID
+      <input type="text" [(ngModel)]="filterFosterId" (ngModelChange)="applyFilters()" />
+    </label>
+    <label>Medically Complex
+      <select [(ngModel)]="filterMedicallyComplex" (ngModelChange)="applyFilters()">
+        <option value="">All</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </label>
+    <label>Intake Date
+      <input type="date" [(ngModel)]="filterIntakeDate" (ngModelChange)="applyFilters()" />
+    </label>
+    <label>Adoption Status
+      <select [(ngModel)]="filterAdoptionStatus" (ngModelChange)="applyFilters()">
+        <option value="">Any</option>
+        <option value="SUBMITTED">Submitted App</option>
+        <option value="IN_REVIEW">In Review App</option>
+        <option value="APPROVED">Approved App</option>
+        <option value="DENIED">Denied App</option>
+        <option value="WITHDRAWN">Withdrawn App</option>
+      </select>
+    </label>
   </div>
 
   <table class="animals-table">
@@ -41,7 +67,7 @@
         <tr>
           <td>{{ a.name }}</td>
           <td>{{ a.species }}</td>
-          <td><span class="status-badge">{{ statusLabel(a.status ?? '') }}</span></td>
+          <td><span class="status-badge">{{ statusLabel(a.status) }}</span></td>
           <td>{{ a.currentShelterName ?? a.currentShelterId ?? '—' }}</td>
           <td>{{ a.updatedAt | date:'short' }}</td>
           <td>
