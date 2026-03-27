@@ -3,10 +3,11 @@ import { AsyncPipe } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth/auth.service';
 import type { UserMeResponse } from './core/models/auth.model';
+import { FooterComponent } from './shared/footer/footer.component';
 
 @Component({
   selector: 'app-root',
-  imports: [AsyncPipe, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [AsyncPipe, RouterLink, RouterLinkActive, RouterOutlet, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -28,10 +29,12 @@ export class App implements OnInit {
   }
 
   isStaff(user: UserMeResponse | null): boolean {
-    return user?.roles?.includes('STAFF') ?? false;
+    if (!user?.roles?.length) return false;
+    return user.roles.includes('STAFF') || user.roles.includes('ROLE_STAFF');
   }
 
   isAdopter(user: UserMeResponse | null): boolean {
-    return user?.roles?.includes('ADOPTER') ?? false;
+    if (!user?.roles?.length) return false;
+    return user.roles.includes('ADOPTER') || user.roles.includes('ROLE_ADOPTER');
   }
 }

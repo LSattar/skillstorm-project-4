@@ -1,69 +1,81 @@
-<h2>Submit Adoption Application</h2>
+<section class="application-shell">
+  <h2>Submit Adoption Application</h2>
+  <p class="subtitle">Tell us about your home so we can match you with the right animal.</p>
 
-@if (error) {
-  <p class="error">{{ error }}</p>
-}
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-  <label>
-    Animal ID
-    <input type="text" formControlName="animalId" />
-  </label>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+    <label class="field">
+      Animal ID
+      <input type="text" formControlName="animalId" placeholder="Enter the animal ID" />
+    </label>
 
-  <h3>Optional questionnaire answers</h3>
+    <h3>Questionnaire (optional)</h3>
 
-  <label>
-    Household size
-    <input type="number" formControlName="questionnaireHouseholdSize" min="0" />
-  </label>
+    <div class="grid-mixed">
+      <label class="field field-compact">
+        Household size
+        <input type="number" formControlName="questionnaireHouseholdSize" min="1" max="10" />
+      </label>
 
-  <label>
-    Phone
-    <input type="text" formControlName="questionnairePhone" />
-  </label>
+      <label class="field">
+        Phone number
+        <input type="text" formControlName="questionnairePhone" placeholder="(555) 123-4567" />
+      </label>
+    </div>
 
-  <label>
-    City
-    <input type="text" formControlName="questionnaireCity" />
-  </label>
+    <div class="grid-2">
+      <label class="field">
+        City
+        <input type="text" formControlName="questionnaireCity" />
+      </label>
 
-  <label>
-    State
-    <input type="text" formControlName="questionnaireState" />
-  </label>
+      <label class="field">
+        State
+        <input type="text" formControlName="questionnaireState" />
+      </label>
+    </div>
 
-  <label>
-    ZIP
-    <input type="text" formControlName="questionnaireZip" />
-  </label>
+    <div class="grid-2">
+      <label class="field">
+        ZIP code
+        <input type="text" formControlName="questionnaireZip" />
+      </label>
 
-  <label>
-    Housing type
-    <select formControlName="questionnaireHousingType">
-      <option value="">—</option>
-      <option value="HOUSE">HOUSE</option>
-      <option value="APARTMENT">APARTMENT</option>
-      <option value="CONDO">CONDO</option>
-      <option value="OTHER">OTHER</option>
-    </select>
-  </label>
+      <label class="field">
+        Housing type
+        <select formControlName="questionnaireHousingType">
+          <option value="">Select one</option>
+          <option value="HOUSE">House</option>
+          <option value="APARTMENT">Apartment</option>
+          <option value="CONDO">Condo</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </label>
+    </div>
 
-  <label><input type="checkbox" formControlName="questionnaireHasYard" /> Has yard</label>
-  <label><input type="checkbox" formControlName="questionnaireHasKids" /> Has kids</label>
-  <label><input type="checkbox" formControlName="questionnaireHasOtherPets" /> Has other pets</label>
-  <label><input type="checkbox" formControlName="questionnaireNeedsGoodWithKids" /> Needs good with kids</label>
-  <label><input type="checkbox" formControlName="questionnaireNeedsGoodWithOtherPets" /> Needs good with other pets</label>
-  <label><input type="checkbox" formControlName="questionnaireWillingMedicallyComplex" /> Willing medically complex</label>
+    <div class="checkbox-group">
+      <p class="checkbox-heading">Check all that apply to you:</p>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireHasYard" /> I have a yard.</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireHasKids" /> I have kids in my home.</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireHasOtherPets" /> I have other pets.</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireNeedsGoodWithKids" /> I need an animal that is good with kids.</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireNeedsGoodWithOtherPets" /> I need an animal that is good with other pets.</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="questionnaireWillingMedicallyComplex" /> I am willing to take on a medically complex animal.</label>
+    </div>
 
-  <label>
-    Notes
-    <textarea rows="4" formControlName="questionnaireNotes"></textarea>
-  </label>
+    <label class="field">
+      Additional notes
+      <textarea rows="4" formControlName="questionnaireNotes" placeholder="Share anything else that would help us find a great match."></textarea>
+    </label>
 
-  <div class="actions">
-    <button type="submit" [disabled]="loading || form.invalid">
-      {{ loading ? 'Submitting…' : 'Submit application' }}
-    </button>
-    <a routerLink="/adopter/applications">Cancel</a>
-  </div>
-</form>
+    <div class="actions">
+      <button type="submit" [disabled]="loading || form.invalid">
+        {{ loading ? 'Submitting…' : 'Submit application' }}
+      </button>
+      <a routerLink="/adopter/applications">Cancel</a>
+    </div>
+  </form>
+</section>

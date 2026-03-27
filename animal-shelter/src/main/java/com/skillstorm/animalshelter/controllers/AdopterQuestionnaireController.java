@@ -36,9 +36,15 @@ public class AdopterQuestionnaireController {
     @GetMapping
     public ResponseEntity<AdopterQuestionnaireResponse> getQuestionnaire(Authentication authentication) {
         UUID currentUserId = currentUserId(authentication);
-        AdopterQuestionnaire q = questionnaireService.getByUserId(currentUserId)
-                .orElseThrow(() -> new com.skillstorm.animalshelter.exceptions.ResourceNotFoundException("Questionnaire not found"));
-        return ResponseEntity.ok(toResponse(q));
+        return questionnaireService.getByUserId(currentUserId)
+                .map(q -> ResponseEntity.ok(toResponse(q)))
+                .orElseGet(() -> {
+                    log.info("No adopter questionnaire found for user id={}, returning empty questionnaire response", currentUserId);
+                    AdopterQuestionnaireResponse empty = new AdopterQuestionnaireResponse();
+                    empty.setUserId(currentUserId);
+                    empty.setSchemaVersion(1);
+                    return ResponseEntity.ok(empty);
+                });
     }
 
     @PutMapping

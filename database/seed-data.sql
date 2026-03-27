@@ -11,10 +11,25 @@ INSERT INTO shelters (name, address_line1, city, state, zip, capacity_total)
 VALUES ('Skillstorm Animal Shelter', '4500 Rescue Way', 'West Hartford', 'CT', '06119', 50);
 
 -- ---------------------------------------------------------------------------
--- 2) Two foster users (FOSTER role); password_hash = BCrypt for "password"
+-- 2) Seed users (STAFF, ADOPTER, FOSTER); password_hash = BCrypt for "password"
 -- ---------------------------------------------------------------------------
 INSERT INTO users (id, email, username, password_hash, display_name, phone, is_enabled)
 VALUES
+  -- Staff
+  ('33333333-3333-4333-8333-333333333333', 'staff1@example.com', 'staff1',
+   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+   'Alex Rivera', '555-0201', 1),
+  ('44444444-4444-4444-8444-444444444444', 'staff2@example.com', 'staff2',
+   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+   'Taylor Morgan', '555-0202', 1),
+  -- Adopters
+  ('55555555-5555-4555-8555-555555555555', 'adopter1@example.com', 'adopter1',
+   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+   'Casey Brooks', '555-0301', 1),
+  ('66666666-6666-4666-8666-666666666666', 'adopter2@example.com', 'adopter2',
+   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+   'Jamie Patel', '555-0302', 1),
+  -- Fosters
   ('11111111-1111-4111-8111-111111111111', 'foster1@example.com', 'foster1',
    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
    'Jordan Foster', '555-0101', 1),
@@ -23,8 +38,16 @@ VALUES
    'Sam Carter', '555-0102', 1);
 
 -- ---------------------------------------------------------------------------
--- 3) Assign FOSTER role to both users
+-- 3) Assign roles to seed users
 -- ---------------------------------------------------------------------------
+INSERT INTO user_roles (user_id, role_id)
+SELECT '33333333-3333-4333-8333-333333333333', id FROM roles WHERE name = 'STAFF' LIMIT 1;
+INSERT INTO user_roles (user_id, role_id)
+SELECT '44444444-4444-4444-8444-444444444444', id FROM roles WHERE name = 'STAFF' LIMIT 1;
+INSERT INTO user_roles (user_id, role_id)
+SELECT '55555555-5555-4555-8555-555555555555', id FROM roles WHERE name = 'ADOPTER' LIMIT 1;
+INSERT INTO user_roles (user_id, role_id)
+SELECT '66666666-6666-4666-8666-666666666666', id FROM roles WHERE name = 'ADOPTER' LIMIT 1;
 INSERT INTO user_roles (user_id, role_id)
 SELECT '11111111-1111-4111-8111-111111111111', id FROM roles WHERE name = 'FOSTER' LIMIT 1;
 INSERT INTO user_roles (user_id, role_id)

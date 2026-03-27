@@ -47,6 +47,21 @@ public class SecurityConfig {
                         .requestMatchers("/api/staff/**").hasRole("STAFF")
                         .requestMatchers(HttpMethod.GET, "/api/animals/*/events").hasRole("STAFF")
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.sendError(401, "Unauthorized");
+                                return;
+                            }
+                            response.sendRedirect("/oauth2/authorization/google");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.sendError(403, "Forbidden");
+                                return;
+                            }
+                            response.sendRedirect("/");
+                        }))
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authz -> authz
                                 .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver))

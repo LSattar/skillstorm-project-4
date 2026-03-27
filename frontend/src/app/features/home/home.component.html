@@ -52,11 +52,12 @@
   <p class="message">No animals found.</p>
 } @else {
   <div class="grid">
-    @for (animal of animals(); track animal.id) {
+    @for (animal of pagedAnimals(); track animal.id) {
       <a [routerLink]="['/animals', animal.id]" class="card">
         <div class="card-inner">
           @if (hasPhoto(animal)) {
             <img [src]="animal.photoUrl!" [alt]="animal.name" class="card-img" />
+            <span class="card-hover-overlay">See more info</span>
           } @else {
             <span class="no-photo">Photo coming soon</span>
           }
@@ -65,4 +66,16 @@
       </a>
     }
   </div>
+
+  @if (animals().length > pageSize) {
+    <nav class="pagination" aria-label="Animal list pagination">
+      <button type="button" (click)="previousPage()" [disabled]="page() === 1">
+        Previous
+      </button>
+      <span>Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="page() === totalPages()">
+        Next
+      </button>
+    </nav>
+  }
 }

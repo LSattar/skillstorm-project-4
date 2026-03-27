@@ -30,7 +30,9 @@ export class AuthService {
 
   hasRole(role: string): boolean {
     const user = this.currentUser$.getValue();
-    return user?.roles?.includes(role) ?? false;
+    if (!user?.roles?.length) return false;
+    const normalized = role.startsWith('ROLE_') ? role : `ROLE_${role}`;
+    return user.roles.includes(role) || user.roles.includes(normalized);
   }
 
   isStaff(): boolean {

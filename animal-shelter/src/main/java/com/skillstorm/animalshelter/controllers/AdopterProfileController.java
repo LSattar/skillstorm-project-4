@@ -36,9 +36,14 @@ public class AdopterProfileController {
     @GetMapping
     public ResponseEntity<AdopterProfileResponse> getProfile(Authentication authentication) {
         UUID currentUserId = currentUserId(authentication);
-        AdopterProfile profile = adopterProfileService.getByUserId(currentUserId)
-                .orElseThrow(() -> new com.skillstorm.animalshelter.exceptions.ResourceNotFoundException("Profile not found"));
-        return ResponseEntity.ok(toResponse(profile));
+        return adopterProfileService.getByUserId(currentUserId)
+                .map(profile -> ResponseEntity.ok(toResponse(profile)))
+                .orElseGet(() -> {
+                    log.info("No adopter profile found for user id={}, returning empty profile response", currentUserId);
+                    AdopterProfileResponse empty = new AdopterProfileResponse();
+                    empty.setUserId(currentUserId);
+                    return ResponseEntity.ok(empty);
+                });
     }
 
     @PutMapping

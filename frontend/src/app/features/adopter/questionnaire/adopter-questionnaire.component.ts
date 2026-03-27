@@ -42,8 +42,11 @@ export class AdopterQuestionnaireComponent implements OnInit {
     });
     this.adopterService.getQuestionnaire().subscribe({
       next: (q) => this.patchForm(q),
-      error: () => {
-        this.error = 'Could not load questionnaire. You may need to fill it out first.';
+      error: (err) => {
+        // New adopters may not have a questionnaire yet; keep an empty form so they can create one.
+        if (err?.status !== 404) {
+          this.error = 'Could not load questionnaire. You may need to fill it out first.';
+        }
         this.loading = false;
       },
       complete: () => (this.loading = false)

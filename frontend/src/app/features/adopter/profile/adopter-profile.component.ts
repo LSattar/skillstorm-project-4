@@ -42,8 +42,11 @@ export class AdopterProfileComponent implements OnInit {
     });
     this.adopterService.getProfile().subscribe({
       next: (p) => this.patchForm(p),
-      error: () => {
-        this.error = 'Could not load profile.';
+      error: (err) => {
+        // New adopters may not have a profile row yet; keep an empty form so they can create one.
+        if (err?.status !== 404) {
+          this.error = 'Could not load profile.';
+        }
         this.loading = false;
       },
       complete: () => (this.loading = false)

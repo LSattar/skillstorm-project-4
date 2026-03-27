@@ -19,7 +19,7 @@
       <input id="displayName" formControlName="displayName" type="text" autocomplete="name" />
     </div>
     <div class="form-row">
-      <label for="password">Password (8+ chars)</label>
+      <label for="password">Password</label>
       <input id="password" formControlName="password" type="password" autocomplete="new-password" />
     </div>
     <button type="submit" [disabled]="loading || form.invalid">{{ loading ? 'Creating account…' : 'Create account' }}</button>

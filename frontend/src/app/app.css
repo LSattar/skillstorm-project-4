@@ -1,5 +1,6 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   font-family: system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
@@ -52,16 +53,16 @@
 
 .login-btn {
   padding: 0.5rem 1rem;
-  background: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 78%, black);
   color: #fff;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 75%, black);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 62%, black);
   border-radius: 6px;
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .login-btn:hover {
-  background: color-mix(in srgb, var(--color-primary) 75%, black);
+  background: color-mix(in srgb, var(--color-primary) 65%, black);
   color: #fff;
 }
 
@@ -108,4 +109,5 @@
   margin: 0 auto;
   padding: 1.5rem;
   box-sizing: border-box;
+  flex: 1;
 }

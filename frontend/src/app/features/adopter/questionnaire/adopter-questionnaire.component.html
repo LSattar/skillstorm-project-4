@@ -1,67 +1,81 @@
-<h2>Questionnaire</h2>
+<section class="questionnaire-shell">
+  <h2>Adoption Questionnaire</h2>
+  <p class="subtitle">This helps us recommend the best fit for your home and lifestyle.</p>
 
-@if (loading) {
-  <p>Loading questionnaire…</p>
-} @else {
-  @if (error) {
-    <p class="error">{{ error }}</p>
-  }
-  @if (success) {
-    <p class="success">Questionnaire saved.</p>
-  }
+  @if (loading) {
+    <p>Loading questionnaire…</p>
+  } @else {
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+    @if (success) {
+      <p class="success">Questionnaire saved.</p>
+    }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="form-row">
-      <label for="householdSize">Household size</label>
-      <input id="householdSize" formControlName="householdSize" type="number" min="0" />
-    </div>
-    <div class="form-row">
-      <label for="phone">Phone</label>
-      <input id="phone" formControlName="phone" type="text" />
-    </div>
-    <div class="form-row">
-      <label for="city">City</label>
-      <input id="city" formControlName="city" type="text" />
-    </div>
-    <div class="form-row">
-      <label for="state">State</label>
-      <input id="state" formControlName="state" type="text" />
-    </div>
-    <div class="form-row">
-      <label for="zip">ZIP</label>
-      <input id="zip" formControlName="zip" type="text" />
-    </div>
-    <div class="form-row">
-      <label for="housingType">Housing type</label>
-      <select id="housingType" formControlName="housingType">
-        <option value="">—</option>
-        @for (t of housingTypes; track t) {
-          <option [value]="t">{{ t }}</option>
-        }
-      </select>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="hasYard" type="checkbox" /> Has yard</label>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="hasKids" type="checkbox" /> Has kids</label>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="hasOtherPets" type="checkbox" /> Has other pets</label>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="needsGoodWithKids" type="checkbox" /> Needs good with kids</label>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="needsGoodWithOtherPets" type="checkbox" /> Needs good with other pets</label>
-    </div>
-    <div class="form-row checkbox-row">
-      <label><input formControlName="willingMedicallyComplex" type="checkbox" /> Willing to consider medically complex</label>
-    </div>
-    <div class="form-row">
-      <label for="notes">Notes</label>
-      <textarea id="notes" formControlName="notes" rows="3"></textarea>
-    </div>
-    <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save questionnaire' }}</button>
-  </form>
-}
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+      <div class="grid-mixed">
+        <div class="form-row field-compact">
+          <label for="householdSize">Household size</label>
+          <input id="householdSize" formControlName="householdSize" type="number" min="1" max="10" />
+        </div>
+        <div class="form-row">
+          <label for="phone">Phone number</label>
+          <input id="phone" formControlName="phone" type="text" placeholder="(555) 123-4567" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-row">
+          <label for="city">City</label>
+          <input id="city" formControlName="city" type="text" />
+        </div>
+        <div class="form-row">
+          <label for="state">State</label>
+          <input id="state" formControlName="state" type="text" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-row">
+          <label for="zip">ZIP code</label>
+          <input id="zip" formControlName="zip" type="text" />
+        </div>
+        <div class="form-row">
+          <label for="housingType">Housing type</label>
+          <select id="housingType" formControlName="housingType">
+            <option value="">Select one</option>
+            @for (t of housingTypes; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <p class="checkbox-heading">Check all that apply to you:</p>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="hasYard" type="checkbox" /> I have a yard.</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="hasKids" type="checkbox" /> I have kids in my home.</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="hasOtherPets" type="checkbox" /> I have other pets.</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="needsGoodWithKids" type="checkbox" /> I need an animal that is good with kids.</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="needsGoodWithOtherPets" type="checkbox" /> I need an animal that is good with other pets.</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <label><input formControlName="willingMedicallyComplex" type="checkbox" /> I am willing to take on a medically complex animal.</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="notes">Additional notes</label>
+        <textarea id="notes" formControlName="notes" rows="4" placeholder="Share any details that can help with matching."></textarea>
+      </div>
+      <button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save questionnaire' }}</button>
+    </form>
+  }
+</section>

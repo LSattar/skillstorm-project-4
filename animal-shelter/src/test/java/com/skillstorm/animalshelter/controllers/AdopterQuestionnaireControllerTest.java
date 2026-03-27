@@ -65,6 +65,19 @@ class AdopterQuestionnaireControllerTest {
     }
 
     @Test
+    void getQuestionnaireReturnsEmptyWhenNotFound() {
+        when(questionnaireService.getByUserId(adopterId)).thenReturn(Optional.empty());
+
+        ResponseEntity<AdopterQuestionnaireResponse> response = controller.getQuestionnaire(auth);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getUserId()).isEqualTo(adopterId);
+        assertThat(response.getBody().getSchemaVersion()).isEqualTo(1);
+        assertThat(response.getBody().getId()).isNull();
+    }
+
+    @Test
     void upsertReturnsUpdatedQuestionnaire() {
         UpsertQuestionnaireRequest req = new UpsertQuestionnaireRequest();
         req.setHousingType("CONDO");

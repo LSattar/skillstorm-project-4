@@ -1,0 +1,19 @@
+.site-footer {
+  background: var(--color-text);
+  color: #fff;
+  margin-top: auto;
+}
+
+.footer-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.footer-content p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
