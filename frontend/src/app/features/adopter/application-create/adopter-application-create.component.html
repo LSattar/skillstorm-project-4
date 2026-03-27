@@ -5,14 +5,22 @@
   @if (error) {
     <p class="error">{{ error }}</p>
   }
+  @if (submitted) {
+    <p class="success">Application submitted successfully. You'll hear back from us if you're a good fit!</p>
+  }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
     <label class="field">
-      Animal ID
-      <input type="text" formControlName="animalId" placeholder="Enter the animal ID" />
+      Pet
+      <select formControlName="animalId" [disabled]="animalsLoading">
+        <option value="">{{ animalsLoading ? 'Loading animals...' : 'Select a pet' }}</option>
+        @for (animal of animals; track animal.id) {
+          <option [value]="animal.id">{{ animal.name }}</option>
+        }
+      </select>
     </label>
 
-    <h3>Questionnaire (optional)</h3>
+    <h3>Application Details</h3>
 
     <div class="grid-mixed">
       <label class="field field-compact">
@@ -72,7 +80,7 @@
     </label>
 
     <div class="actions">
-      <button type="submit" [disabled]="loading || form.invalid">
+      <button type="submit" [disabled]="submitted || loading || animalsLoading || form.invalid || !selectedAnimalName">
         {{ loading ? 'Submitting…' : 'Submit application' }}
       </button>
       <a routerLink="/adopter/applications">Cancel</a>

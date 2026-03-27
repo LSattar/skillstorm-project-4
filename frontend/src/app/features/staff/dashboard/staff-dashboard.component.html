@@ -40,18 +40,14 @@
               <td>{{ app.animalId }}</td>
               <td>{{ statusLabel(app.status) }}</td>
               <td>{{ app.createdAt | date:'short' }}</td>
-              <td><a [routerLink]="['/staff/applications', app.id]">Review</a></td>
+              <td>
+                <button type="button" class="link-btn" (click)="openApplication(app.id)">Review</button>
+              </td>
             </tr>
           }
         </tbody>
       </table>
     }
-    <p><a routerLink="/staff/applications">View all applications</a></p>
-  </section>
-
-  <section class="quick-links">
-    <a routerLink="/staff/animals" class="btn">Manage animals</a>
-    <a routerLink="/staff/applications" class="btn">Review applications</a>
-    <a routerLink="/staff/employees" class="btn">Employees</a>
+    <p><button type="button" class="link-btn" (click)="openApplicationsList()">View all applications</button></p>
   </section>
 }

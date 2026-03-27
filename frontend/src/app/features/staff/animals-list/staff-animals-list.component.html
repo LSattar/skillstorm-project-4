@@ -57,7 +57,7 @@
         <th>Name</th>
         <th>Species</th>
         <th>Status</th>
-        <th>Shelter</th>
+        <th>Location</th>
         <th>Updated</th>
         <th></th>
       </tr>
@@ -68,11 +68,11 @@
           <td>{{ a.name }}</td>
           <td>{{ a.species }}</td>
           <td><span class="status-badge">{{ statusLabel(a.status) }}</span></td>
-          <td>{{ a.currentShelterName ?? a.currentShelterId ?? '—' }}</td>
+          <td>{{ locationLabel(a) }}</td>
           <td>{{ a.updatedAt | date:'short' }}</td>
-          <td>
-            <a [routerLink]="['/staff/animals', a.id, 'edit']">Edit</a>
-            <a [routerLink]="['/staff/animals', a.id, 'move']">Move</a>
+          <td class="actions-cell">
+            <button type="button" class="table-action-btn" [routerLink]="['/staff/animals', a.id, 'edit']">Edit</button>
+            <button type="button" class="table-action-btn" [routerLink]="['/staff/animals', a.id, 'move']">Move</button>
           </td>
         </tr>
       }

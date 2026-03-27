@@ -1,11 +1,165 @@
-.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-.filters label { display: grid; gap: 0.25rem; }
-.filters input, .filters select { width: 100%; }
-.applications-table { width: 100%; border-collapse: collapse; }
-.applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
-.status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+.filters {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-surface) 14%, white);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 180px;
+  flex: 1 1 180px;
+  color: color-mix(in srgb, var(--color-text) 92%, black);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.filters select,
+.filters input {
+  height: 2.35rem;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--color-text);
+  padding: 0 0.7rem;
+  font: 500 0.9rem/1.2 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--color-primary) 70%, black);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, white);
+}
+
+.filters button {
+  height: 2.35rem;
+  padding: 0 0.95rem;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font: 600 0.88rem/1 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filters button:first-of-type {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: color-mix(in srgb, var(--color-primary) 72%, black);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+.filters button:first-of-type:hover {
+  background: color-mix(in srgb, var(--color-primary) 80%, black);
+  transform: translateY(-1px);
+}
+
+.filters button:last-of-type {
+  background: color-mix(in srgb, var(--color-surface) 35%, white);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.filters button:last-of-type:hover {
+  background: color-mix(in srgb, var(--color-accent) 35%, white);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-text));
+  transform: translateY(-1px);
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.applications-table th,
+.applications-table td {
+  padding: 0.65rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.status-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
 .status-submitted { background: color-mix(in srgb, var(--color-surface) 35%, white); border: 1px solid var(--color-border); }
 .status-in_review { background: color-mix(in srgb, var(--color-accent) 30%, white); border: 1px solid var(--color-border); }
 .status-approved { background: color-mix(in srgb, var(--color-primary) 25%, white); border: 1px solid var(--color-border); }
 .status-denied { background: color-mix(in srgb, var(--color-danger) 35%, white); border: 1px solid var(--color-border); }
 .error { color: var(--color-danger); }
+.success {
+  color: color-mix(in srgb, var(--color-primary) 80%, black);
+  margin: 0 0 0.8rem 0;
+  font-weight: 600;
+}
+
+.actions-col {
+  min-width: 170px;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.table-action-btn {
+  border: 1px solid color-mix(in srgb, var(--color-accent) 65%, var(--color-text));
+  border-radius: 7px;
+  padding: 0.3rem 0.55rem;
+  background: var(--color-accent);
+  color: var(--color-text);
+  font: 600 0.78rem/1 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.table-action-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 45%, var(--color-accent));
+  transform: translateY(-1px);
+}
+
+.btn-approve-inline {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 72%, black);
+  border-radius: 7px;
+  padding: 0.3rem 0.55rem;
+  background: var(--color-primary);
+  color: #fff;
+  font: 600 0.78rem/1 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+.btn-approve-inline:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 80%, black);
+  transform: translateY(-1px);
+}
+
+.btn-approve-inline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -13,6 +13,8 @@ import type { UserResponse } from '../../../core/models/staff.model';
   styleUrl: './staff-employees-list.component.css'
 })
 export class StaffEmployeesListComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private employeesService = inject(StaffEmployeesService);
 
   employees: UserResponse[] = [];
@@ -21,12 +23,25 @@ export class StaffEmployeesListComponent implements OnInit {
 
   ngOnInit(): void {
     this.employeesService.list().subscribe({
-      next: (list) => (this.employees = list),
-      error: (err: HttpErrorResponse) => {
-        this.error = this.apiErrorMessage(err, 'Could not load employees.');
-        this.loading = false;
+      next: (list) => {
+        this.ngZone.run(() => {
+          this.employees = list;
+          this.cdr.detectChanges();
+        });
       },
-      complete: () => (this.loading = false)
+      error: (err: HttpErrorResponse) => {
+        this.ngZone.run(() => {
+          this.error = this.apiErrorMessage(err, 'Could not load employees.');
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      complete: () => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
     });
   }
 

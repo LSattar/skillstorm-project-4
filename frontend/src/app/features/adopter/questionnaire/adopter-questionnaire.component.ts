@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { AdopterService } from '../../../core/services/adopter.service';
 import type { AdopterQuestionnaireResponse, UpsertQuestionnaireRequest } from '../../../core/models/adopter.model';
 
@@ -13,6 +14,8 @@ const HOUSING_TYPES = ['HOUSE', 'APARTMENT', 'CONDO', 'OTHER'];
   styleUrl: './adopter-questionnaire.component.css'
 })
 export class AdopterQuestionnaireComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private fb = inject(FormBuilder);
   private adopterService = inject(AdopterService);
 
@@ -40,16 +43,32 @@ export class AdopterQuestionnaireComponent implements OnInit {
       state: [''],
       zip: ['']
     });
-    this.adopterService.getQuestionnaire().subscribe({
-      next: (q) => this.patchForm(q),
+    this.loading = true;
+    this.adopterService.getQuestionnaire().pipe(
+      finalize(() => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (q) => {
+        this.ngZone.run(() => {
+          if (q) {
+            this.patchForm(q);
+          }
+          this.cdr.detectChanges();
+        });
+      },
       error: (err) => {
         // New adopters may not have a questionnaire yet; keep an empty form so they can create one.
-        if (err?.status !== 404) {
-          this.error = 'Could not load questionnaire. You may need to fill it out first.';
-        }
-        this.loading = false;
-      },
-      complete: () => (this.loading = false)
+        this.ngZone.run(() => {
+          if (err?.status !== 404) {
+            this.error = 'Could not load questionnaire. You may need to fill it out first.';
+          }
+          this.cdr.detectChanges();
+        });
+      }
     });
   }
 
@@ -77,14 +96,25 @@ export class AdopterQuestionnaireComponent implements OnInit {
     this.success = false;
     this.saving = true;
     const value = this.form.value as UpsertQuestionnaireRequest;
-    this.adopterService.upsertQuestionnaire(value).subscribe({
+    this.adopterService.upsertQuestionnaire(value).pipe(
+      finalize(() => {
+        this.ngZone.run(() => {
+          this.saving = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
       next: () => {
-        this.success = true;
-        this.saving = false;
+        this.ngZone.run(() => {
+          this.success = true;
+          this.cdr.detectChanges();
+        });
       },
       error: () => {
-        this.error = 'Could not save questionnaire.';
-        this.saving = false;
+        this.ngZone.run(() => {
+          this.error = 'Could not save questionnaire.';
+          this.cdr.detectChanges();
+        });
       }
     });
   }

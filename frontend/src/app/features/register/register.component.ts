@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -35,7 +36,11 @@ export class RegisterComponent {
       email: value.email ?? '',
       displayName: value.displayName?.trim() || undefined,
       password: value.password ?? ''
-    }).subscribe({
+    }).pipe(
+      finalize(() => {
+        this.loading = false;
+      })
+    ).subscribe({
       next: () => {
         const user = this.auth.currentUserValue;
         if (user?.roles?.includes('STAFF')) {
@@ -46,7 +51,6 @@ export class RegisterComponent {
       },
       error: () => {
         this.error = 'Could not register with those details.';
-        this.loading = false;
       }
     });
   }

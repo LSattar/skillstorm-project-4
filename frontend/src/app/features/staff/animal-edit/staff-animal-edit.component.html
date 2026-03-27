@@ -9,6 +9,9 @@
   @if (error) {
     <p class="error">{{ error }}</p>
   }
+  @if (success) {
+    <p class="success">Animal saved.</p>
+  }
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="form-row">
       <label for="name">Name</label>

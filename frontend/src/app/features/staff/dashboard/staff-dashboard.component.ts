@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
+import { PLATFORM_ID } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DatePipe, KeyValuePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { DatePipe, KeyValuePipe, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
+import { catchError, forkJoin, of, timeout } from 'rxjs';
 import { StaffAnimalsService } from '../../../core/services/staff-animals.service';
 import { StaffApplicationsService } from '../../../core/services/staff-applications.service';
 import type { AnimalResponse } from '../../../core/models/staff.model';
@@ -11,11 +12,15 @@ import type { AdoptionApplicationResponse } from '../../../core/models/adopter.m
 @Component({
   selector: 'app-staff-dashboard',
   standalone: true,
-  imports: [DatePipe, KeyValuePipe, RouterLink],
+  imports: [DatePipe, KeyValuePipe],
   templateUrl: './staff-dashboard.component.html',
   styleUrl: './staff-dashboard.component.css'
 })
 export class StaffDashboardComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
   private animalsService = inject(StaffAnimalsService);
   private applicationsService = inject(StaffApplicationsService);
 
@@ -25,20 +30,45 @@ export class StaffDashboardComponent implements OnInit {
   error: string | null = null;
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      this.loading = false;
+      return;
+    }
     forkJoin({
-      animals: this.animalsService.list(),
-      applications: this.applicationsService.list()
+      animals: this.animalsService.list().pipe(
+        timeout(10000),
+        catchError(() => {
+          return of([] as AnimalResponse[]);
+        })
+      ),
+      applications: this.applicationsService.list().pipe(
+        timeout(10000),
+        catchError(() => {
+          return of([] as AdoptionApplicationResponse[]);
+        })
+      )
     }).subscribe({
       next: ({ animals, applications }) => {
-        this.buildStats(animals);
-        this.recentApplications = applications
-          .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
-          .slice(0, 10);
+        this.ngZone.run(() => {
+          this.buildStats(animals);
+          this.recentApplications = applications
+            .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+            .slice(0, 10);
+          this.cdr.detectChanges();
+        });
       },
       error: (err: HttpErrorResponse) => {
-        this.error = this.apiErrorMessage(err, 'Could not load dashboard.');
+        this.ngZone.run(() => {
+          this.error = this.apiErrorMessage(err, 'Could not load dashboard.');
+          this.cdr.detectChanges();
+        });
       },
-      complete: () => (this.loading = false)
+      complete: () => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
     });
   }
 
@@ -53,6 +83,14 @@ export class StaffDashboardComponent implements OnInit {
 
   statusLabel(status: string): string {
     return status?.replace(/_/g, ' ') ?? status;
+  }
+
+  openApplication(applicationId: string): void {
+    this.router.navigate(['/staff/applications', applicationId]);
+  }
+
+  openApplicationsList(): void {
+    this.router.navigate(['/staff/applications']);
   }
 
   get hasStats(): boolean {

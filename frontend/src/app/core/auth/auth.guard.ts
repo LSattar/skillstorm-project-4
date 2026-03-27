@@ -8,8 +8,7 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (!auth.token) {
-    router.navigate(['/login']);
-    return false;
+    return router.createUrlTree(['/login']);
   }
 
   if (auth.currentUserValue) {
@@ -19,14 +18,10 @@ export const authGuard: CanActivateFn = () => {
   return auth.me().pipe(
     map((user) => {
       if (!user) {
-        router.navigate(['/login']);
-        return false;
+        return router.createUrlTree(['/login']);
       }
       return true;
     }),
-    catchError(() => {
-      router.navigate(['/login']);
-      return of(false);
-    })
+    catchError(() => of(router.createUrlTree(['/login'])))
   );
 };

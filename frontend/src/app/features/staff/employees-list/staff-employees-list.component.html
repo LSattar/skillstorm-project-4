@@ -28,7 +28,7 @@
           <td>{{ e.roles?.join(', ') ?? '—' }}</td>
           <td>{{ e.isEnabled !== false ? 'Yes' : 'No' }}</td>
           <td>{{ e.createdAt | date:'short' }}</td>
-          <td><a [routerLink]="['/staff/employees', e.id]">View</a></td>
+          <td><button type="button" class="table-action-btn" [routerLink]="['/staff/employees', e.id]">View</button></td>
         </tr>
       }
     </tbody>

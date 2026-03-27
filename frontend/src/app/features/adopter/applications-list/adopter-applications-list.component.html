@@ -11,7 +11,7 @@
   <table class="applications-table">
     <thead>
       <tr>
-        <th>Animal ID</th>
+        <th>Pet</th>
         <th>Status</th>
         <th>Submitted</th>
         <th></th>
@@ -20,10 +20,10 @@
     <tbody>
       @for (app of applications; track app.id) {
         <tr>
-          <td>{{ app.animalId }}</td>
+          <td>{{ animalNameFor(app.animalId) }}</td>
           <td><span class="status-badge" [class]="'status-' + app.status.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
           <td>{{ app.createdAt | date:'short' }}</td>
-          <td><a [routerLink]="['/adopter/applications', app.id]">View</a></td>
+          <td><button type="button" class="table-action-btn" [routerLink]="['/adopter/applications', app.id]">View</button></td>
         </tr>
       }
     </tbody>

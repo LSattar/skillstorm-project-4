@@ -1,29 +1,42 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export function roleGuard(allowedRoles: string[]): CanActivateFn {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
-    const user = auth.currentUserValue;
+    const roleRedirect = () => {
+      if (auth.isStaff()) return router.createUrlTree(['/staff']);
+      if (auth.isAdopter()) return router.createUrlTree(['/adopter/applications']);
+      return router.createUrlTree(['/']);
+    };
 
-    if (!user) {
-      router.navigate(['/login']);
-      return false;
-    }
-
-    const hasRole = allowedRoles.some((role) => auth.hasRole(role));
-    if (!hasRole) {
-      if (auth.isStaff()) {
-        router.navigate(['/staff']);
-      } else if (auth.isAdopter()) {
-        router.navigate(['/adopter/applications']);
-      } else {
-        router.navigate(['/']);
+    const canActivateForRoles = () => {
+      const hasRole = allowedRoles.some((role) => auth.hasRole(role));
+      if (!hasRole) {
+        return roleRedirect();
       }
-      return false;
+      return true;
+    };
+
+    if (auth.currentUserValue) {
+      return canActivateForRoles();
     }
-    return true;
+
+    if (!auth.token) {
+      return router.createUrlTree(['/login']);
+    }
+
+    return auth.me().pipe(
+      map((user) => {
+        if (!user) {
+          return router.createUrlTree(['/login']);
+        }
+        return canActivateForRoles();
+      }),
+      catchError(() => of(router.createUrlTree(['/login'])))
+    );
   };
 }

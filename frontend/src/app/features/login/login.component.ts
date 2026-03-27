@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -27,7 +28,11 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.error = null;
     this.loading = true;
-    this.auth.login(this.form.value).subscribe({
+    this.auth.login(this.form.value).pipe(
+      finalize(() => {
+        this.loading = false;
+      })
+    ).subscribe({
       next: () => {
         const user = this.auth.currentUserValue;
         if (user?.roles?.includes('STAFF')) {
@@ -40,7 +45,6 @@ export class LoginComponent {
       },
       error: () => {
         this.error = 'Invalid username or password.';
-        this.loading = false;
       }
     });
   }

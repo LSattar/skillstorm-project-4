@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { StaffEmployeesService } from '../../../core/services/staff-employees.service';
 import type { CreateEmployeeRequest } from '../../../core/models/staff.model';
 
@@ -32,11 +33,14 @@ export class StaffEmployeeFormComponent {
     this.error = null;
     this.saving = true;
     const value = this.form.value as CreateEmployeeRequest;
-    this.employeesService.create(value).subscribe({
+    this.employeesService.create(value).pipe(
+      finalize(() => {
+        this.saving = false;
+      })
+    ).subscribe({
       next: (e) => this.router.navigate(['/staff/employees', e.id]),
       error: () => {
         this.error = 'Could not create employee.';
-        this.saving = false;
       }
     });
   }

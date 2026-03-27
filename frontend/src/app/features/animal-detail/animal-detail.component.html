@@ -31,14 +31,23 @@
       }
       @if (a.ageMonths != null) {
         <dt>Age</dt>
-        <dd>{{ a.ageMonths }} months</dd>
+        <dd>{{ formatAge(a.ageMonths) }}</dd>
       }
-      <dt>Good with kids</dt>
-      <dd>{{ a.goodWithKids ?? '—' }}</dd>
-      <dt>Good with other pets</dt>
-      <dd>{{ a.goodWithOtherPets ?? '—' }}</dd>
-      <dt>Medically complex</dt>
-      <dd>{{ a.medicallyComplex ?? '—' }}</dd>
+      <dt class="bool-line">
+        <span class="bool-icon" [class]="boolStateClass(a.goodWithKids)">{{ boolIcon(a.goodWithKids) }}</span>
+        Good with kids
+      </dt>
+      <dd class="bool-spacer"></dd>
+      <dt class="bool-line">
+        <span class="bool-icon" [class]="boolStateClass(a.goodWithOtherPets)">{{ boolIcon(a.goodWithOtherPets) }}</span>
+        Good with other pets
+      </dt>
+      <dd class="bool-spacer"></dd>
+      <dt class="bool-line">
+        <span class="bool-icon" [class]="boolStateClass(a.medicallyComplex)">{{ boolIcon(a.medicallyComplex) }}</span>
+        Medically complex
+      </dt>
+      <dd class="bool-spacer"></dd>
     </dl>
 
     @if (a.description) {

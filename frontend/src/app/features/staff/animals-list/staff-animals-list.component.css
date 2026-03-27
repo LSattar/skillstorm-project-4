@@ -1,10 +1,75 @@
-.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-.filters label { display: grid; gap: 0.25rem; }
-.filters input, .filters select { width: 100%; }
+.filters {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  padding: 0.95rem;
+  border: 1px solid #d8d8dd;
+  border-radius: 12px;
+  background: #f7f7f9;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 138px;
+  flex: 1 1 138px;
+  color: #5a5a5a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.filters select,
+.filters input {
+  height: 2.35rem;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccccd2;
+  border-radius: 9px;
+  background: #fff;
+  color: #2f2f2f;
+  padding: 0 0.7rem;
+  font: 500 0.9rem/1.2 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.2);
+}
 .animals-table { width: 100%; border-collapse: collapse; }
 .animals-table th, .animals-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
-.animals-table td a { margin-right: 0.75rem; }
+.actions-cell { display: flex; align-items: center; gap: 0.5rem; }
+.table-action-btn {
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 65%, var(--color-text));
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--color-text);
+  font: 600 0.82rem/1 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.table-action-btn:hover {
+  background: color-mix(in srgb, var(--color-primary) 45%, var(--color-accent));
+  transform: translateY(-1px);
+}
 .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; background: color-mix(in srgb, var(--color-surface) 45%, white); border: 1px solid var(--color-border); }
 .btn { display: inline-block; padding: 0.5rem 1rem; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 4px; margin-bottom: 1rem; }
 .btn:hover { background: color-mix(in srgb, var(--color-primary) 75%, black); }
 .error { color: var(--color-danger); }
+
+@media (max-width: 768px) {
+  .filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}

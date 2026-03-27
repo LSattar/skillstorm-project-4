@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { AdopterService } from '../../../core/services/adopter.service';
 import type { AdopterProfileResponse, UpdateAdopterProfileRequest } from '../../../core/models/adopter.model';
 
@@ -13,6 +14,8 @@ const HOUSING_TYPES = ['HOUSE', 'APARTMENT', 'CONDO', 'OTHER'];
   styleUrl: './adopter-profile.component.css'
 })
 export class AdopterProfileComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private fb = inject(FormBuilder);
   private adopterService = inject(AdopterService);
 
@@ -40,16 +43,32 @@ export class AdopterProfileComponent implements OnInit {
       willingMedicallyComplex: [false],
       notes: ['']
     });
-    this.adopterService.getProfile().subscribe({
-      next: (p) => this.patchForm(p),
+    this.loading = true;
+    this.adopterService.getProfile().pipe(
+      finalize(() => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (p) => {
+        this.ngZone.run(() => {
+          if (p) {
+            this.patchForm(p);
+          }
+          this.cdr.detectChanges();
+        });
+      },
       error: (err) => {
         // New adopters may not have a profile row yet; keep an empty form so they can create one.
-        if (err?.status !== 404) {
-          this.error = 'Could not load profile.';
-        }
-        this.loading = false;
-      },
-      complete: () => (this.loading = false)
+        this.ngZone.run(() => {
+          if (err?.status !== 404) {
+            this.error = 'Could not load profile.';
+          }
+          this.cdr.detectChanges();
+        });
+      }
     });
   }
 
@@ -77,14 +96,25 @@ export class AdopterProfileComponent implements OnInit {
     this.success = false;
     this.saving = true;
     const value = this.form.value as UpdateAdopterProfileRequest;
-    this.adopterService.updateProfile(value).subscribe({
+    this.adopterService.updateProfile(value).pipe(
+      finalize(() => {
+        this.ngZone.run(() => {
+          this.saving = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
       next: () => {
-        this.success = true;
-        this.saving = false;
+        this.ngZone.run(() => {
+          this.success = true;
+          this.cdr.detectChanges();
+        });
       },
       error: () => {
-        this.error = 'Could not save profile.';
-        this.saving = false;
+        this.ngZone.run(() => {
+          this.error = 'Could not save profile.';
+          this.cdr.detectChanges();
+        });
       }
     });
   }

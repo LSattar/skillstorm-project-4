@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { StaffAnimalsService } from '../../../core/services/staff-animals.service';
 import type { CreateAnimalRequest } from '../../../core/models/staff.model';
 
@@ -46,13 +47,16 @@ export class StaffAnimalFormComponent {
     this.error = null;
     this.saving = true;
     const value = this.form.value as CreateAnimalRequest;
-    this.animalsService.create(value).subscribe({
+    this.animalsService.create(value).pipe(
+      finalize(() => {
+        this.saving = false;
+      })
+    ).subscribe({
       next: (animal) => {
         this.router.navigate(['/staff/animals', animal.id, 'edit']);
       },
       error: () => {
         this.error = 'Could not create animal.';
-        this.saving = false;
       }
     });
   }

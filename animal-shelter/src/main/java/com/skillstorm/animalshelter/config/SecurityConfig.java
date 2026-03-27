@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -57,6 +58,16 @@ public class SecurityConfig {
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             if (request.getRequestURI().startsWith("/api/")) {
+                                Authentication authentication = org.springframework.security.core.context.SecurityContextHolder
+                                        .getContext()
+                                        .getAuthentication();
+                                boolean authenticated = authentication != null
+                                        && authentication.isAuthenticated()
+                                        && !"anonymousUser".equals(authentication.getPrincipal());
+                                if (!authenticated) {
+                                    response.sendError(401, "Unauthorized");
+                                    return;
+                                }
                                 response.sendError(403, "Forbidden");
                                 return;
                             }

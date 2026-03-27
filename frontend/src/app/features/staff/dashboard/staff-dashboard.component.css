@@ -5,6 +5,17 @@
 .stat-label { font-size: 0.85rem; color: var(--color-text); }
 .applications-table { width: 100%; border-collapse: collapse; }
 .applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+.link-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+.link-btn:hover { color: color-mix(in srgb, var(--color-primary) 75%, black); }
 .quick-links { display: flex; gap: 0.5rem; margin-top: 1rem; }
 .quick-links .btn { padding: 0.5rem 1rem; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 4px; }
 .quick-links .btn:hover { background: color-mix(in srgb, var(--color-primary) 75%, black); }

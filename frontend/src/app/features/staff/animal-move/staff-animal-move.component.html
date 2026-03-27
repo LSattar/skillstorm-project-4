@@ -1,4 +1,4 @@
-<h2>Move / Status: {{ animalName || '…' }}</h2>
+<h2>Move Animal: {{ animalName || '…' }}</h2>
 
 @if (loading) {
   <p>Loading…</p>
@@ -47,26 +47,6 @@
         <input id="moveNotes2" formControlName="notes" type="text" />
       </div>
       <button type="submit" [disabled]="submitting || !moveFosterForm.get('toFosterUserId')?.value">Move to foster</button>
-    </form>
-  </section>
-
-  <section class="move-section">
-    <h3>Update status</h3>
-    <form [formGroup]="statusForm" (ngSubmit)="updateStatus()">
-      <div class="form-row">
-        <label for="status">Status</label>
-        <select id="status" formControlName="status">
-          <option value="">—</option>
-          @for (s of statusOptions; track s) {
-            <option [value]="s">{{ s }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-row">
-        <label for="statusNotes">Notes</label>
-        <input id="statusNotes" formControlName="notes" type="text" />
-      </div>
-      <button type="submit" [disabled]="submitting || !statusForm.get('status')?.value">Update status</button>
     </form>
   </section>
 

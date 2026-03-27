@@ -81,6 +81,28 @@
   margin: 0;
 }
 
+.attrs .bool-line {
+  grid-column: 1 / -1;
+}
+
+.attrs .bool-icon {
+  display: inline-block;
+  width: 1.25rem;
+  font-weight: 700;
+}
+
+.attrs .bool-icon.bool-true {
+  color: #1a7f37;
+}
+
+.attrs .bool-icon.bool-false {
+  color: #c62828;
+}
+
+.attrs .bool-spacer {
+  display: none;
+}
+
 .description h2 {
   font-size: 1.1rem;
   margin: 0 0 0.5rem;

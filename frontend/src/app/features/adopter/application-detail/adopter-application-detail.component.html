@@ -7,8 +7,8 @@
   <a routerLink="/adopter/applications">Back to applications</a>
 } @else if (application) {
   <dl class="detail-list">
-    <dt>Animal ID</dt>
-    <dd><a [routerLink]="['/animals', application.animalId]">{{ application.animalId }}</a></dd>
+    <dt>Animal Name</dt>
+    <dd><a [routerLink]="['/animals', application.animalId]">{{ animalName }}</a></dd>
     <dt>Status</dt>
     <dd><span class="status-badge" [class]="'status-' + application.status.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
     <dt>Submitted</dt>
@@ -22,9 +22,14 @@
       <dd>{{ application.decisionNotes }}</dd>
     }
   </dl>
-  @if (application.questionnaireSnapshotJson) {
+  @if (questionnaireEntries.length) {
     <h3>Your answers at time of submission</h3>
-    <pre class="snapshot">{{ application.questionnaireSnapshotJson }}</pre>
+    <dl class="snapshot-list">
+      @for (entry of questionnaireEntries; track entry.label) {
+        <dt>{{ entry.label }}</dt>
+        <dd>{{ entry.value }}</dd>
+      }
+    </dl>
   }
   <p><a routerLink="/adopter/applications">Back to applications</a></p>
 }

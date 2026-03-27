@@ -6,8 +6,9 @@
   <p class="error">{{ error }}</p>
 } @else {
   <div class="filters">
-    <label>Status
-      <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+    <label>
+      Status
+      <select [(ngModel)]="filterStatus">
         <option value="">All</option>
         <option value="SUBMITTED">Submitted</option>
         <option value="IN_REVIEW">In review</option>
@@ -16,32 +17,59 @@
         <option value="WITHDRAWN">Withdrawn</option>
       </select>
     </label>
-    <label>Animal ID
-      <input type="text" [(ngModel)]="filterAnimalId" (ngModelChange)="applyFilters()" />
+    <label>
+      Animal ID
+      <input type="text" [(ngModel)]="filterAnimalId" />
     </label>
-    <label>Adopter Email
-      <input type="email" [(ngModel)]="filterAdopterEmail" (ngModelChange)="applyFilters()" />
+    <label>
+      Adopter Email
+      <input type="email" [(ngModel)]="filterAdopterEmail" />
     </label>
+    <button type="button" (click)="applyFilters()">Apply filters</button>
+    <button type="button" (click)="resetFilters()">Reset</button>
   </div>
+
+  @if (actionError) {
+    <p class="error">{{ actionError }}</p>
+  }
+  @if (actionSuccess) {
+    <p class="success">{{ actionSuccess }}</p>
+  }
 
   <table class="applications-table">
     <thead>
       <tr>
-        <th>Animal ID</th>
-        <th>Adopter</th>
+        <th>Animal Name</th>
+        <th>Adopter Name</th>
+        <th>Adopter Email</th>
         <th>Status</th>
         <th>Submitted</th>
-        <th></th>
+        <th class="actions-col">Actions</th>
       </tr>
     </thead>
     <tbody>
       @for (app of filtered; track app.id) {
         <tr>
-          <td>{{ app.animalId }}</td>
-          <td>{{ app.adopterUserId }}</td>
+          <td>{{ animalName(app) }}</td>
+          <td>{{ adopterName(app) }}</td>
+          <td>{{ adopterEmail(app) }}</td>
           <td><span class="status-badge" [class]="'status-' + app.status.toLowerCase()">{{ statusLabel(app.status) }}</span></td>
           <td>{{ app.createdAt | date:'short' }}</td>
-          <td><a [routerLink]="['/staff/applications', app.id]">Review</a></td>
+          <td class="actions-cell">
+            <button type="button" class="table-action-btn" [routerLink]="['/staff/applications', app.id]">Review</button>
+            <button
+              type="button"
+              class="btn-approve-inline"
+              (click)="approve(app)"
+              [disabled]="!canApprove(app) || actionInProgressId === app.id"
+            >
+              @if (actionInProgressId === app.id) {
+                Approving…
+              } @else {
+                Approve
+              }
+            </button>
+          </td>
         </tr>
       }
     </tbody>

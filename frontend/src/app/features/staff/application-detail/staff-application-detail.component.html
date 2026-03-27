@@ -11,9 +11,13 @@
   }
 
   <dl class="detail-list">
+    <dt>Animal Name</dt>
+    <dd>{{ animalName }}</dd>
+    <dt>Adopter Name</dt>
+    <dd>{{ adopterName }}</dd>
     <dt>Animal ID</dt>
     <dd><a [routerLink]="['/animals', application.animalId]">{{ application.animalId }}</a></dd>
-    <dt>Adopter</dt>
+    <dt>Adopter ID</dt>
     <dd>{{ application.adopterUserId }}</dd>
     <dt>Status</dt>
     <dd><span class="status-badge" [class]="'status-' + application.status.toLowerCase()">{{ statusLabel(application.status) }}</span></dd>
@@ -29,9 +33,14 @@
     }
   </dl>
 
-  @if (application.questionnaireSnapshotJson) {
+  @if (questionnaireEntries.length) {
     <h3>Questionnaire snapshot</h3>
-    <pre class="snapshot">{{ application.questionnaireSnapshotJson }}</pre>
+    <dl class="snapshot-list">
+      @for (entry of questionnaireEntries; track entry.label) {
+        <dt>{{ entry.label }}</dt>
+        <dd>{{ entry.value }}</dd>
+      }
+    </dl>
   }
 
   @if (application.status === 'SUBMITTED' || application.status === 'IN_REVIEW') {

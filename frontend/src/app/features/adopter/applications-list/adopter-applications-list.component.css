@@ -1,5 +1,20 @@
 .applications-table { width: 100%; border-collapse: collapse; }
 .applications-table th, .applications-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+.table-action-btn {
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 65%, var(--color-text));
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--color-text);
+  font: 600 0.82rem/1 Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.table-action-btn:hover {
+  background: color-mix(in srgb, var(--color-primary) 45%, var(--color-accent));
+  transform: translateY(-1px);
+}
 .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.9rem; }
 .status-submitted { background: color-mix(in srgb, var(--color-surface) 35%, white); border: 1px solid var(--color-border); }
 .status-in_review { background: color-mix(in srgb, var(--color-accent) 30%, white); border: 1px solid var(--color-border); }
