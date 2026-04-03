@@ -1,0 +1,32 @@
+<section class="recommendations">
+  <h1>Recommended Pets</h1>
+
+  @if (loading) {
+    <p>Loading recommendations...</p>
+  } @else if (error) {
+    <p class="error">{{ error }}</p>
+  } @else if (!recommendations.length) {
+    <p>No recommendations yet. Complete your profile and questionnaire for better matches.</p>
+  } @else {
+    <ul class="recommendations-list">
+      @for (item of recommendations; track item.animalId) {
+        <li class="recommendation-card">
+          <div class="card-top">
+            <h2>{{ item.animalName || 'Unnamed Pet' }}</h2>
+            <span class="score">{{ item.score }}%</span>
+          </div>
+          <p class="meta">{{ item.species || 'Unknown species' }} @if (item.breed) { - {{ item.breed }} }</p>
+          <p class="summary">{{ item.summary || 'Compatibility based on your profile and this pet.' }}</p>
+          <p class="summary">{{ item.rationale || 'This recommendation combines your profile fit with pet notes.' }}</p>
+          <p class="mode">Mode: {{ item.matchingMode || 'RULES_ONLY' }}</p>
+          <ul class="reasons">
+            @for (reason of item.reasonCodes; track reason) {
+              <li>{{ toDisplayReason(reason) }}</li>
+            }
+          </ul>
+          <a [routerLink]="['/animals', item.animalId]">View pet details</a>
+        </li>
+      }
+    </ul>
+  }
+</section>

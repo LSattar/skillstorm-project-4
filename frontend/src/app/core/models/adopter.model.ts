@@ -88,3 +88,15 @@ export interface CreateApplicationRequest {
   questionnaireAnswers?: UpsertQuestionnaireRequest | null;
   questionnaireSnapshotJson?: string | null;
 }
+
+export interface AdopterRecommendation {
+  animalId: string;
+  animalName?: string | null;
+  species?: string | null;
+  breed?: string | null;
+  score: number;
+  reasonCodes: string[];
+  matchingMode?: 'HYBRID' | 'RULES_ONLY' | string;
+  summary?: string | null;
+  rationale?: string | null;
+}

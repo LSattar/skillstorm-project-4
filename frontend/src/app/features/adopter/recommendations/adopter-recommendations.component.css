@@ -1,0 +1,46 @@
+.recommendations {
+  display: grid;
+  gap: 1rem;
+}
+
+.error {
+  color: #b00020;
+}
+
+.recommendations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.recommendation-card {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.meta,
+.summary,
+.mode {
+  margin: 0;
+}
+
+.reasons {
+  margin: 0.25rem 0 0;
+  padding-left: 1rem;
+}

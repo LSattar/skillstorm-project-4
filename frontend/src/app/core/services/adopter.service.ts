@@ -8,7 +8,8 @@ import type {
   AdopterQuestionnaireResponse,
   UpsertQuestionnaireRequest,
   AdoptionApplicationResponse,
-  CreateApplicationRequest
+  CreateApplicationRequest,
+  AdopterRecommendation
 } from '../models/adopter.model';
 
 @Injectable({ providedIn: 'root' })
@@ -41,5 +42,9 @@ export class AdopterService {
 
   createApplication(body: CreateApplicationRequest): Observable<AdoptionApplicationResponse> {
     return this.http.post<AdoptionApplicationResponse>(`${apiBaseUrl}/adopter/applications`, body);
+  }
+
+  getRecommendations(limit = 10): Observable<AdopterRecommendation[]> {
+    return this.http.get<AdopterRecommendation[]>(`${apiBaseUrl}/adopter/recommendations?limit=${limit}`);
   }
 }
