@@ -81,6 +81,16 @@ public class AuthController {
         return ResponseEntity.ok(toUserMeResponse(user));
     }
 
+    @GetMapping("/oauth2/google-url")
+    public ResponseEntity<Map<String, String>> oauth2GoogleUrl(HttpServletRequest request) {
+        log.debug("GET /api/auth/oauth2/google-url requested");
+        String baseUrl = request.getScheme() + "://" + request.getServerName()
+                + (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort())
+                + (request.getContextPath() != null && !request.getContextPath().isEmpty() ? request.getContextPath() : "");
+        String redirectUrl = baseUrl + "/oauth2/authorization/google";
+        return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
+    }
+
     /**
      * Returns the redirect URL to start the "Link Google" OAuth flow. Call with Bearer JWT.
      * Only STAFF and FOSTER roles may link Google; adopters sign in with Google directly.

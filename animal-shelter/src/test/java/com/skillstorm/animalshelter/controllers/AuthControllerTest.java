@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.skillstorm.animalshelter.dtos.request.LoginRequest;
 import com.skillstorm.animalshelter.dtos.request.RegisterRequest;
@@ -114,6 +115,27 @@ class AuthControllerTest {
             assertThatThrownBy(() -> controller.login(req))
                     .isInstanceOf(com.skillstorm.animalshelter.exceptions.ResourceNotFoundException.class)
                     .hasMessageContaining("Invalid username or password");
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/auth/oauth2/google-url")
+    class OAuthGoogleUrl {
+
+        @Test
+        @DisplayName("returns 200 with oauth redirect url")
+        void returnsOauthRedirectUrl() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setScheme("http");
+            request.setServerName("localhost");
+            request.setServerPort(8080);
+            request.setContextPath("");
+
+            ResponseEntity<java.util.Map<String, String>> result = controller.oauth2GoogleUrl(request);
+
+            assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(result.getBody()).isNotNull();
+            assertThat(result.getBody().get("redirectUrl")).isEqualTo("http://localhost:8080/oauth2/authorization/google");
         }
     }
 }

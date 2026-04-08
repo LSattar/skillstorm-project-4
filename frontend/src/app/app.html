@@ -13,6 +13,11 @@
         <a routerLink="/adopter/profile" routerLinkActive="active">Profile</a>
         <a routerLink="/adopter/applications" routerLinkActive="active">My Applications</a>
       }
+      @if (canLinkGoogle(user)) {
+        <button type="button" class="oauth-link-btn" (click)="onLinkGoogleAccount()" [disabled]="linkingOAuth">
+          {{ linkingOAuth ? 'Linking…' : 'Link Google' }}
+        </button>
+      }
       <button type="button" class="logout-btn" (click)="logout()">Logout</button>
     } @else {
       <a routerLink="/login" class="login-btn">Login</a>
@@ -20,6 +25,9 @@
     }
   </nav>
 </header>
+@if (oauthLinkError) {
+  <p class="oauth-link-error">{{ oauthLinkError }}</p>
+}
 <main class="main">
   <router-outlet />
 </main>

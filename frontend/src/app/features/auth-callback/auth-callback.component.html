@@ -1,0 +1,10 @@
+<div class="callback-page">
+  <h1>Google Sign-In</h1>
+  @if (loading) {
+    <p>{{ message }}</p>
+  } @else {
+    <p [class.error]="isError">{{ message }}</p>
+    <p><a routerLink="/login">Go to login</a></p>
+    <p><a routerLink="/">Back to home</a></p>
+  }
+</div>

@@ -16,6 +16,9 @@
     </div>
     <button type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign in' }}</button>
   </form>
+  <button type="button" class="oauth-btn" [disabled]="oauthLoading" (click)="onGoogleLogin()">
+    {{ oauthLoading ? 'Redirecting…' : 'Continue with Google' }}
+  </button>
 
   <p><a routerLink="/register">Need an account? Register</a></p>
   <p><a routerLink="/">Back to home</a></p>

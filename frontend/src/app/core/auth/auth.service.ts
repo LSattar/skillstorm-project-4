@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, map, of } from 'rxjs';
 import { apiBaseUrl } from '../api-config';
 import type { LoginRequest, LoginResponse, UserMeResponse } from '../models/auth.model';
 
@@ -89,6 +89,25 @@ export class AuthService {
   }
 
   loadCurrentUser(): Observable<UserMeResponse | null> {
+    return this.me();
+  }
+
+  getGoogleLoginRedirectUrl(): Observable<string> {
+    return this.http
+      .get<{ redirectUrl: string }>(`${apiBaseUrl}/auth/oauth2/google-url`)
+      .pipe(map((res) => res.redirectUrl), catchError(() => of('')));
+  }
+
+  getGoogleLinkRedirectUrl(): Observable<string> {
+    return this.http
+      .get<{ redirectUrl: string }>(`${apiBaseUrl}/auth/link-google`)
+      .pipe(map((res) => res.redirectUrl), catchError(() => of('')));
+  }
+
+  completeOAuthLogin(token: string): Observable<UserMeResponse | null> {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
     return this.me();
   }
 }

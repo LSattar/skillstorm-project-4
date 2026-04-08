@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/oauth2/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/oauth2/google-url", "/oauth2/**").permitAll()
                         .requestMatchers("/api/auth/me", "/api/auth/link-google").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/animals", "/api/animals/*", "/api/animals/*/photos").permitAll()
                         .requestMatchers("/api/adopter/**").hasRole("ADOPTER")

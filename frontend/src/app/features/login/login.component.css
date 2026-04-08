@@ -4,4 +4,8 @@
 .form-row label { display: block; margin-bottom: 0.25rem; }
 .form-row input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
 .login-page button { margin-top: 0.5rem; padding: 0.5rem 1rem; }
+.oauth-btn {
+  width: 100%;
+  margin-top: 0.75rem;
+}
 .error { color: var(--color-danger); margin-bottom: 0.5rem; }

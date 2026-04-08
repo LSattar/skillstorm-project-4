@@ -22,6 +22,7 @@ export class LoginComponent {
   });
 
   loading = false;
+  oauthLoading = false;
   error: string | null = null;
 
   onSubmit(): void {
@@ -45,6 +46,27 @@ export class LoginComponent {
       },
       error: () => {
         this.error = 'Invalid username or password.';
+      }
+    });
+  }
+
+  onGoogleLogin(): void {
+    this.error = null;
+    this.oauthLoading = true;
+    this.auth.getGoogleLoginRedirectUrl().pipe(
+      finalize(() => {
+        this.oauthLoading = false;
+      })
+    ).subscribe({
+      next: (redirectUrl) => {
+        if (!redirectUrl || typeof window === 'undefined') {
+          this.error = 'Could not start Google sign-in.';
+          return;
+        }
+        window.location.href = redirectUrl;
+      },
+      error: () => {
+        this.error = 'Could not start Google sign-in.';
       }
     });
   }

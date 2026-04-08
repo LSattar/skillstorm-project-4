@@ -1,0 +1,8 @@
+.callback-page {
+  max-width: 24rem;
+  margin: 2rem auto;
+}
+
+.error {
+  color: var(--color-danger);
+}

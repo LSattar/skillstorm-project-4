@@ -3,6 +3,7 @@ import { HomeComponent } from './features/home/home.component';
 import { AnimalDetailComponent } from './features/animal-detail/animal-detail.component';
 import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
+import { AuthCallbackComponent } from './features/auth-callback/auth-callback.component';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { AdopterLayoutComponent } from './features/adopter/adopter-layout.component';
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'animals/:id', component: AnimalDetailComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'auth/callback', component: AuthCallbackComponent },
 
   {
     path: 'adopter',
